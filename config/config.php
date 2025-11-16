@@ -7,6 +7,11 @@
  * @version 1.0
  */
 
+// Session configuration MUST come BEFORE session_start()
+ini_set('session.cookie_httponly', 1);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.cookie_secure', 0); // Set to 1 if using HTTPS
+
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -37,10 +42,7 @@ define('MAX_FILE_SIZE', 5242880); // 5MB in bytes
 define('ALLOWED_IMAGE_TYPES', ['image/jpeg', 'image/png', 'image/gif']);
 define('ALLOWED_DOCUMENT_TYPES', ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']);
 
-// Session configuration
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', 0); // Set to 1 if using HTTPS
+// Session timeout
 define('SESSION_TIMEOUT', 3600); // 1 hour in seconds
 
 // Security settings
@@ -66,6 +68,9 @@ define('SMTP_FROM_NAME', 'Kyle HMS');
 
 // Include database connection
 require_once ROOT_PATH . '/config/database.php';
+
+// Include helper functions
+require_once ROOT_PATH . '/includes/functions.php';
 
 /**
  * Redirect helper function
