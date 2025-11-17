@@ -120,7 +120,7 @@ if (isLoggedIn()) {
                 </div>
                 <div class="col-lg-6" data-aos="fade-left">
                     <div class="hero-image">
-                        <img src="<?php echo ASSETS_PATH; ?>/images/hero-illustration.svg" 
+                        <img src="<?php echo ASSETS_PATH; ?>/images/hero-illustration.jpg" 
                              alt="Healthcare Illustration" 
                              class="img-fluid">
                     </div>
