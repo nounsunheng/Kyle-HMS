@@ -304,16 +304,6 @@ $csrfToken = generateCSRFToken();
                                 <strong>Password:</strong> Test@123
                             </div>
                         </div>
-                        
-                        <?php if (DEBUG_MODE): ?>
-                        <div class="alert alert-warning mt-3 mb-0">
-                            <small>
-                                <i class="fas fa-tools me-1"></i>
-                                <strong>Debug Mode Active</strong><br>
-                                Having issues? Try the <a href="../test-password.php" target="_blank">Password Debug Tool</a>
-                            </small>
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
