@@ -37,9 +37,11 @@ try {
         SELECT 
             a.*,
             d.docname,
+            d.doctel,
             d.profile_image as doc_image,
             s.title as schedule_title,
-            sp.name as specialty_name
+            sp.name as specialty_name,
+            sp.icon as specialty_icon
         FROM appointment a
         JOIN schedule s ON a.scheduleid = s.scheduleid
         JOIN doctor d ON s.docid = d.docid
@@ -252,11 +254,15 @@ try {
                                                             <img src="<?php echo UPLOADS_URL . '/avatars/' . htmlspecialchars($appt['doc_image']); ?>" 
                                                                  alt="Doctor" 
                                                                  class="rounded-circle me-2" 
-                                                                 style="width: 35px; height: 35px; object-fit: cover;">
+                                                                 style="width: 35px; height: 35px; object-fit: cover;"
+                                                                 onerror="this.src='<?php echo UPLOADS_URL; ?>/avatars/default-doctor.png'">
                                                             <span><?php echo htmlspecialchars($appt['docname']); ?></span>
                                                         </div>
                                                     </td>
-                                                    <td><?php echo htmlspecialchars($appt['specialty_name']); ?></td>
+                                                    <td>
+                                                        <i class="<?php echo htmlspecialchars($appt['specialty_icon']); ?> me-1"></i>
+                                                        <?php echo htmlspecialchars($appt['specialty_name']); ?>
+                                                    </td>
                                                     <td>
                                                         <div>
                                                             <i class="fas fa-calendar me-1"></i>
@@ -269,16 +275,115 @@ try {
                                                     </td>
                                                     <td><?php echo getStatusBadge($appt['status']); ?></td>
                                                     <td>
-                                                        <a href="appointment-details.php?id=<?php echo $appt['appoid']; ?>" 
-                                                           class="btn btn-sm btn-outline-primary">
+                                                        <button class="btn btn-sm btn-outline-primary" 
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#detailsModal<?php echo $appt['appoid']; ?>">
                                                             <i class="fas fa-eye"></i>
-                                                        </a>
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div>
+                                
+                                <!-- Modals for Each Appointment -->
+                                <?php foreach ($upcomingAppointments as $appt): ?>
+                                    <div class="modal fade" id="detailsModal<?php echo $appt['appoid']; ?>" tabindex="-1">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Appointment Details</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <div class="border rounded p-3">
+                                                                <small class="text-muted">Appointment Number</small>
+                                                                <h5 class="text-primary mb-0"><?php echo htmlspecialchars($appt['appointment_number']); ?></h5>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="border rounded p-3">
+                                                                <small class="text-muted">Status</small>
+                                                                <div><?php echo getStatusBadge($appt['status']); ?></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="border rounded p-3">
+                                                                <small class="text-muted">Date</small>
+                                                                <div class="fw-bold"><?php echo formatDate($appt['appodate'], 'F j, Y'); ?></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="border rounded p-3">
+                                                                <small class="text-muted">Time</small>
+                                                                <div class="fw-bold"><?php echo formatTime($appt['appotime']); ?></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <div class="border rounded p-3">
+                                                                <small class="text-muted">Doctor</small>
+                                                                <div class="d-flex align-items-center mt-2">
+                                                                    <img src="<?php echo UPLOADS_URL . '/avatars/' . htmlspecialchars($appt['doc_image']); ?>" 
+                                                                         alt="Doctor" 
+                                                                         class="rounded-circle me-3" 
+                                                                         style="width: 60px; height: 60px; object-fit: cover;"
+                                                                         onerror="this.src='<?php echo UPLOADS_URL; ?>/avatars/default-doctor.png'">
+                                                                    <div>
+                                                                        <h6 class="mb-0"><?php echo htmlspecialchars($appt['docname']); ?></h6>
+                                                                        <p class="mb-0 text-muted">
+                                                                            <i class="fas fa-phone me-1"></i>
+                                                                            <?php echo htmlspecialchars(formatPhone($appt['doctel'])); ?>
+                                                                        </p>
+                                                                        <p class="mb-0 text-primary">
+                                                                            <i class="<?php echo htmlspecialchars($appt['specialty_icon']); ?> me-1"></i>
+                                                                            <?php echo htmlspecialchars($appt['specialty_name']); ?>
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12">
+                                                            <div class="border rounded p-3">
+                                                                <small class="text-muted">Schedule Title</small>
+                                                                <div class="fw-bold"><?php echo htmlspecialchars($appt['schedule_title']); ?></div>
+                                                            </div>
+                                                        </div>
+                                                        <?php if (!empty($appt['symptoms'])): ?>
+                                                            <div class="col-md-12">
+                                                                <div class="border rounded p-3">
+                                                                    <small class="text-muted">Symptoms / Reason</small>
+                                                                    <p class="mb-0 mt-2"><?php echo nl2br(htmlspecialchars($appt['symptoms'])); ?></p>
+                                                                </div>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                        <?php if (!empty($appt['notes'])): ?>
+                                                            <div class="col-md-12">
+                                                                <div class="border rounded p-3">
+                                                                    <small class="text-muted">Additional Notes</small>
+                                                                    <p class="mb-0 mt-2"><?php echo nl2br(htmlspecialchars($appt['notes'])); ?></p>
+                                                                </div>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                        <div class="col-md-12">
+                                                            <div class="border rounded p-3 bg-light">
+                                                                <small class="text-muted">Booked On</small>
+                                                                <div><?php echo formatDate($appt['created_at'], 'F j, Y g:i A'); ?></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <a href="appointments.php" class="btn btn-primary">View All Appointments</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                                
                             <?php else: ?>
                                 <div class="empty-state">
                                     <i class="fas fa-calendar-times empty-state-icon"></i>

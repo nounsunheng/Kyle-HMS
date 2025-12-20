@@ -3,6 +3,7 @@
  * Kyle-HMS My Appointments
  * View all patient appointments
  */
+
 require_once '../config/config.php';
 require_once '../config/session.php';
 
@@ -11,20 +12,26 @@ requireLogin('p');
 $userEmail = getCurrentUserEmail();
 $userId = getUserId($userEmail, 'p');
 
-// Handle cancellation
+// Handle cancellation with doctor notification
 if (isset($_POST['cancel_appointment']) && isset($_POST['appointment_id'])) {
     if (verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $appointmentId = (int)$_POST['appointment_id'];
-        $cancellationReason = sanitize($_POST['cancellation_reason'] ?? '');
+        $cancellationReason = sanitize($_POST['cancellation_reason']);
+        
+        if (empty($cancellationReason)) {
+            setFlashMessage('Please provide a reason for cancellation', 'error');
+            redirect('/patient/appointments.php');
+        }
         
         try {
             $conn->beginTransaction();
             
             // Check if appointment belongs to user and can be cancelled
             $stmt = $conn->prepare("
-                SELECT a.*, s.scheduledate, s.scheduletime
+                SELECT a.*, s.scheduledate, s.scheduletime, d.docname, d.docemail
                 FROM appointment a
                 JOIN schedule s ON a.scheduleid = s.scheduleid
+                JOIN doctor d ON s.docid = d.docid
                 WHERE a.appoid = ? AND a.pid = ?
                 AND a.status IN ('pending', 'confirmed')
             ");
@@ -50,11 +57,27 @@ if (isset($_POST['cancel_appointment']) && isset($_POST['appointment_id'])) {
                 ");
                 $stmt->execute([$cancellationReason, $appointmentId]);
                 
+                // Send notification to doctor
+                $stmt = $conn->prepare("
+                    INSERT INTO notifications (user_email, title, message, type)
+                    VALUES (?, ?, ?, 'cancellation')
+                ");
+                $patientName = getUserFullName($userEmail, 'p');
+                $message = "Patient {$patientName} has cancelled appointment #{$appointment['appointment_number']} scheduled for " . 
+                           formatDate($appointment['scheduledate'], 'F j, Y') . " at " . 
+                           formatTime($appointment['scheduletime']) . ". Reason: " . 
+                           $cancellationReason;
+                $stmt->execute([
+                    $appointment['docemail'],
+                    'Appointment Cancelled by Patient',
+                    $message
+                ]);
+                
                 $conn->commit();
                 
                 logActivity('cancel_appointment', 'Cancelled appointment #' . $appointment['appointment_number']);
                 
-                setFlashMessage('Appointment cancelled successfully', 'success');
+                setFlashMessage('Appointment cancelled successfully. The doctor has been notified.', 'success');
             } else {
                 throw new Exception('Appointment not found or cannot be cancelled');
             }
@@ -207,6 +230,11 @@ $csrfToken = generateCSRFToken();
                                 <span class="badge bg-secondary"><?php echo ucfirst($statusFilter); ?></span>
                             <?php endif; ?>
                         </h5>
+                        <?php if ($statusFilter !== 'all'): ?>
+                            <a href="appointments.php" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i> Clear Filter
+                            </a>
+                        <?php endif; ?>
                     </div>
                     
                     <?php if (!empty($appointments)): ?>
@@ -348,6 +376,19 @@ $csrfToken = generateCSRFToken();
                                                                     </div>
                                                                 </div>
                                                             <?php endif; ?>
+                                                            <?php if (!empty($appt['cancellation_reason']) && $appt['status'] === 'cancelled'): ?>
+                                                                <div class="col-md-12">
+                                                                    <div class="border border-danger rounded p-3 bg-danger bg-opacity-10">
+                                                                        <small class="text-danger"><strong>Cancellation Reason:</strong></small>
+                                                                        <p class="mb-0 mt-2 text-danger"><?php echo nl2br(htmlspecialchars($appt['cancellation_reason'])); ?></p>
+                                                                        <?php if ($appt['cancelled_at']): ?>
+                                                                            <small class="text-muted d-block mt-2">
+                                                                                Cancelled on: <?php echo formatDate($appt['cancelled_at'], 'F j, Y g:i A'); ?>
+                                                                            </small>
+                                                                        <?php endif; ?>
+                                                                    </div>
+                                                                </div>
+                                                            <?php endif; ?>
                                                             <div class="col-md-12">
                                                                 <div class="border rounded p-3 bg-light">
                                                                     <small class="text-muted">Booked On</small>
@@ -363,46 +404,59 @@ $csrfToken = generateCSRFToken();
                                             </div>
                                         </div>
                                         
-                                        <!-- Cancel Modal -->
+                                        <!-- Cancel Modal with Required Reason -->
                                         <?php if (in_array($appt['status'], ['pending', 'confirmed'])): ?>
-                                            <div class="modal fade" id="cancelModal<?php echo $appt['appoid']; ?>" tabindex="-1">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <form method="POST" action="">
-                                                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
-                                                            <input type="hidden" name="appointment_id" value="<?php echo $appt['appoid']; ?>">
-                                                            <div class="modal-header bg-danger text-white">
-                                                                <h5 class="modal-title">Cancel Appointment</h5>
-                                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <p>Are you sure you want to cancel this appointment?</p>
-                                                                <div class="alert alert-warning">
-                                                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                                                    <strong>Appointment:</strong> <?php echo htmlspecialchars($appt['appointment_number']); ?><br>
-                                                                    <strong>Doctor:</strong> <?php echo htmlspecialchars($appt['docname']); ?><br>
-                                                                    <strong>Date:</strong> <?php echo formatDate($appt['appodate']); ?> at <?php echo formatTime($appt['appotime']); ?>
+                                            <?php
+                                            $appointmentDateTime = strtotime($appt['appodate'] . ' ' . $appt['appotime']);
+                                            $hoursUntil = ($appointmentDateTime - time()) / 3600;
+                                            if ($hoursUntil >= CANCELLATION_HOURS):
+                                            ?>
+                                                <div class="modal fade" id="cancelModal<?php echo $appt['appoid']; ?>" tabindex="-1">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <form method="POST" action="">
+                                                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                                                <input type="hidden" name="appointment_id" value="<?php echo $appt['appoid']; ?>">
+                                                                <div class="modal-header bg-danger text-white">
+                                                                    <h5 class="modal-title">Cancel Appointment</h5>
+                                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                                 </div>
-                                                                <div class="mb-3">
-                                                                    <label for="cancellation_reason" class="form-label">Reason for Cancellation</label>
-                                                                    <textarea class="form-control" 
-                                                                              id="cancellation_reason" 
-                                                                              name="cancellation_reason" 
-                                                                              rows="3" 
-                                                                              placeholder="Please provide a reason..."
-                                                                              required></textarea>
+                                                                <div class="modal-body">
+                                                                    <p>Are you sure you want to cancel this appointment?</p>
+                                                                    <div class="alert alert-warning">
+                                                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                        <strong>Appointment:</strong> <?php echo htmlspecialchars($appt['appointment_number']); ?><br>
+                                                                        <strong>Doctor:</strong> <?php echo htmlspecialchars($appt['docname']); ?><br>
+                                                                        <strong>Date:</strong> <?php echo formatDate($appt['appodate']); ?> at <?php echo formatTime($appt['appotime']); ?>
+                                                                    </div>
+                                                                    <div class="mb-3">
+                                                                        <label for="cancellation_reason<?php echo $appt['appoid']; ?>" class="form-label">
+                                                                            Reason for Cancellation <span class="text-danger">*</span>
+                                                                        </label>
+                                                                        <textarea class="form-control" 
+                                                                                  id="cancellation_reason<?php echo $appt['appoid']; ?>" 
+                                                                                  name="cancellation_reason" 
+                                                                                  rows="4" 
+                                                                                  placeholder="Please provide a reason for cancellation. The doctor will see this message."
+                                                                                  required></textarea>
+                                                                        <small class="text-muted">This reason will be sent to your doctor via notification.</small>
+                                                                    </div>
+                                                                    <div class="alert alert-info mb-0">
+                                                                        <i class="fas fa-info-circle me-2"></i>
+                                                                        <strong>Note:</strong> Appointments can only be cancelled at least <?php echo CANCELLATION_HOURS; ?> hours before the scheduled time.
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Appointment</button>
-                                                                <button type="submit" name="cancel_appointment" class="btn btn-danger">
-                                                                    <i class="fas fa-times me-2"></i> Cancel Appointment
-                                                                </button>
-                                                            </div>
-                                                        </form>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Appointment</button>
+                                                                    <button type="submit" name="cancel_appointment" class="btn btn-danger">
+                                                                        <i class="fas fa-times me-2"></i> Cancel Appointment
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 </tbody>

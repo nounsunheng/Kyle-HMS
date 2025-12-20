@@ -1,0 +1,13 @@
+{
+    "name": "kyle/hms",
+    "description": "Web-based Hospital Management System",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "KYLE",
+            "email": "nounsunheng290503@gmail.com"
+        }
+    ],
+    "require": {}
+}

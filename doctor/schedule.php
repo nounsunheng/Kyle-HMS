@@ -144,14 +144,19 @@ if (isset($_GET['delete']) && isset($_GET['token'])) {
     }
 }
 
-// Fetch all schedules
+// Fetch all schedules with dynamic status
 try {
     $stmt = $conn->prepare("
         SELECT 
             s.*,
             (s.nop - s.booked) as available_slots,
             COUNT(DISTINCT CASE WHEN a.status = 'confirmed' THEN a.appoid END) as confirmed_count,
-            COUNT(DISTINCT CASE WHEN a.status = 'pending' THEN a.appoid END) as pending_count
+            COUNT(DISTINCT CASE WHEN a.status = 'pending' THEN a.appoid END) as pending_count,
+            CASE 
+                WHEN s.scheduledate < CURDATE() THEN 'expired'
+                WHEN s.status = 'active' THEN 'active'
+                ELSE s.status
+            END as display_status
         FROM schedule s
         LEFT JOIN appointment a ON s.scheduleid = a.scheduleid
         WHERE s.docid = ?
@@ -298,10 +303,10 @@ $csrfToken = generateCSRFToken();
                             <?php if (!empty($schedules)): ?>
                                 <?php 
                                 $upcomingSchedules = array_filter($schedules, function($s) {
-                                    return $s['scheduledate'] >= date('Y-m-d') && $s['status'] === 'active';
+                                    return $s['scheduledate'] >= date('Y-m-d') && $s['display_status'] === 'active';
                                 });
                                 $pastSchedules = array_filter($schedules, function($s) {
-                                    return $s['scheduledate'] < date('Y-m-d') || $s['status'] !== 'active';
+                                    return $s['scheduledate'] < date('Y-m-d') || $s['display_status'] !== 'active';
                                 });
                                 ?>
                                 
@@ -478,8 +483,8 @@ $csrfToken = generateCSRFToken();
                                                     </small>
                                                 </div>
                                                 <div class="col-md-2 text-end">
-                                                    <span class="badge bg-secondary">
-                                                        <?php echo ucfirst($schedule['status']); ?>
+                                                    <span class="badge <?php echo $schedule['display_status'] === 'expired' ? 'bg-danger' : 'bg-secondary'; ?>">
+                                                        <?php echo ucfirst($schedule['display_status']); ?>
                                                     </span>
                                                 </div>
                                             </div>

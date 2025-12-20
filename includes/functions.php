@@ -236,6 +236,30 @@ function getUnreadNotificationCount($userEmail) {
 }
 
 /**
+ * Get recent notifications for user
+ * @param string $email
+ * @param int $limit
+ * @return array
+ */
+function getRecentNotifications($email, $limit = 5) {
+    global $conn;
+    
+    try {
+        $stmt = $conn->prepare("
+            SELECT * FROM notifications 
+            WHERE user_email = ? 
+            ORDER BY created_at DESC 
+            LIMIT ?
+        ");
+        $stmt->execute([$email, $limit]);
+        return $stmt->fetchAll();
+    } catch (PDOException $e) {
+        error_log("Get Notifications Error: " . $e->getMessage());
+        return [];
+    }
+}
+
+/**
  * Mark notification as read
  * @param int $notifId
  * @return bool
@@ -372,14 +396,34 @@ function getGenderOptions() {
  */
 function getStatusBadge($status) {
     $badges = [
-        'pending' => '<span class="badge bg-warning">Pending</span>',
+        'pending' => '<span class="badge bg-warning text-dark">Pending</span>',
         'confirmed' => '<span class="badge bg-info">Confirmed</span>',
         'completed' => '<span class="badge bg-success">Completed</span>',
         'cancelled' => '<span class="badge bg-danger">Cancelled</span>',
-        'no_show' => '<span class="badge bg-secondary">No Show</span>'
+        'no_show' => '<span class="badge bg-secondary">No Show</span>',
+        'active' => '<span class="badge bg-success">Active</span>',
+        'inactive' => '<span class="badge bg-secondary">Inactive</span>',
+        'on_leave' => '<span class="badge bg-warning">On Leave</span>'
     ];
     
-    return $badges[$status] ?? '<span class="badge bg-secondary">Unknown</span>';
+    return $badges[$status] ?? '<span class="badge bg-secondary">' . ucfirst($status) . '</span>';
+}
+
+/**
+ * Get appointment status color
+ * @param string $status
+ * @return string
+ */
+function getStatusColor($status) {
+    $colors = [
+        'pending' => '#ffc107',
+        'confirmed' => '#0dcaf0',
+        'completed' => '#198754',
+        'cancelled' => '#dc3545',
+        'no_show' => '#6c757d'
+    ];
+    
+    return $colors[$status] ?? '#6c757d';
 }
 
 /**
@@ -412,5 +456,172 @@ function arrayToOptions($options, $selected = '') {
         $html .= '</option>';
     }
     return $html;
+}
+
+/**
+ * Check if appointment can be cancelled
+ * @param string $appointmentDate
+ * @param string $appointmentTime
+ * @return bool
+ */
+function canCancelAppointment($appointmentDate, $appointmentTime) {
+    $appointmentDateTime = new DateTime($appointmentDate . ' ' . $appointmentTime);
+    $now = new DateTime();
+    $diff = $now->diff($appointmentDateTime);
+    
+    // Calculate hours difference
+    $hoursDiff = ($diff->days * 24) + $diff->h;
+    
+    // If appointment is in the past, cannot cancel
+    if ($appointmentDateTime < $now) {
+        return false;
+    }
+    
+    // Must cancel at least CANCELLATION_HOURS before appointment
+    return $hoursDiff >= CANCELLATION_HOURS;
+}
+
+/**
+ * Get time remaining until appointment
+ * @param string $appointmentDate
+ * @param string $appointmentTime
+ * @return string
+ */
+function getTimeUntilAppointment($appointmentDate, $appointmentTime) {
+    $appointmentDateTime = new DateTime($appointmentDate . ' ' . $appointmentTime);
+    $now = new DateTime();
+    
+    if ($appointmentDateTime < $now) {
+        return 'Past';
+    }
+    
+    $diff = $now->diff($appointmentDateTime);
+    
+    if ($diff->days > 0) {
+        return $diff->days . ' day' . ($diff->days > 1 ? 's' : '');
+    } elseif ($diff->h > 0) {
+        return $diff->h . ' hour' . ($diff->h > 1 ? 's' : '');
+    } else {
+        return $diff->i . ' minute' . ($diff->i > 1 ? 's' : '');
+    }
+}
+
+/**
+ * Check if date is today
+ * @param string $date
+ * @return bool
+ */
+function isToday($date) {
+    return date('Y-m-d', strtotime($date)) === date('Y-m-d');
+}
+
+/**
+ * Check if date is tomorrow
+ * @param string $date
+ * @return bool
+ */
+function isTomorrow($date) {
+    return date('Y-m-d', strtotime($date)) === date('Y-m-d', strtotime('+1 day'));
+}
+
+/**
+ * Generate secure random password
+ * @param int $length
+ * @return string
+ */
+function generatePassword($length = 12) {
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$!%*?&#';
+    $password = '';
+    $charsLength = strlen($chars);
+    
+    for ($i = 0; $i < $length; $i++) {
+        $password .= $chars[random_int(0, $charsLength - 1)];
+    }
+    
+    return $password;
+}
+
+/**
+ * Get file extension
+ * @param string $filename
+ * @return string
+ */
+function getFileExtension($filename) {
+    return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+}
+
+/**
+ * Format file size
+ * @param int $bytes
+ * @return string
+ */
+function formatFileSize($bytes) {
+    if ($bytes >= 1073741824) {
+        return number_format($bytes / 1073741824, 2) . ' GB';
+    } elseif ($bytes >= 1048576) {
+        return number_format($bytes / 1048576, 2) . ' MB';
+    } elseif ($bytes >= 1024) {
+        return number_format($bytes / 1024, 2) . ' KB';
+    } else {
+        return $bytes . ' bytes';
+    }
+}
+
+/**
+ * Get statistics for dashboard
+ * @param string $userType
+ * @param mixed $userId
+ * @return array
+ */
+function getDashboardStats($userType, $userId) {
+    global $conn;
+    $stats = [];
+    
+    try {
+        switch ($userType) {
+            case 'p': // Patient
+                $stmt = $conn->prepare("
+                    SELECT 
+                        COUNT(*) as total_appointments,
+                        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                        SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as upcoming,
+                        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed
+                    FROM appointment WHERE pid = ?
+                ");
+                $stmt->execute([$userId]);
+                $stats = $stmt->fetch();
+                break;
+                
+            case 'd': // Doctor
+                $stmt = $conn->prepare("
+                    SELECT 
+                        COUNT(DISTINCT a.appoid) as total_appointments,
+                        COUNT(DISTINCT a.pid) as total_patients,
+                        SUM(CASE WHEN a.appodate = CURDATE() THEN 1 ELSE 0 END) as today_appointments,
+                        SUM(CASE WHEN a.status = 'pending' THEN 1 ELSE 0 END) as pending_appointments
+                    FROM appointment a
+                    JOIN schedule s ON a.scheduleid = s.scheduleid
+                    WHERE s.docid = ?
+                ");
+                $stmt->execute([$userId]);
+                $stats = $stmt->fetch();
+                break;
+                
+            case 'a': // Admin
+                $stmt = $conn->query("
+                    SELECT 
+                        (SELECT COUNT(*) FROM patient) as total_patients,
+                        (SELECT COUNT(*) FROM doctor WHERE status = 'active') as total_doctors,
+                        (SELECT COUNT(*) FROM appointment WHERE status = 'pending') as pending_appointments,
+                        (SELECT COUNT(*) FROM appointment WHERE appodate = CURDATE()) as today_appointments
+                ");
+                $stats = $stmt->fetch();
+                break;
+        }
+    } catch (PDOException $e) {
+        error_log("Get Dashboard Stats Error: " . $e->getMessage());
+    }
+    
+    return $stats ?: [];
 }
 ?>
