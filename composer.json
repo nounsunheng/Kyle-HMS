@@ -1,13 +1,26 @@
 {
-    "name": "kyle/hms",
-    "description": "Web-based Hospital Management System",
+    "name": "nounsunheng/kyle-hms",
+    "description": "Hospital Management System - Professional MVC Architecture",
     "type": "project",
     "license": "MIT",
     "authors": [
         {
-            "name": "KYLE",
+            "name": "Noun Sunheng",
             "email": "nounsunheng290503@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">=8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/Helpers/functions.php"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
 }

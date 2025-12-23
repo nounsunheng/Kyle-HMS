@@ -1,0 +1,234 @@
+Folder PATH listing
+Volume serial number is 5863-302D
+C:.
+|   .gitignore
+|   .htaccess
+|   bootstrap.php
+|   composer.json
+|   composer.lock
+|   index.php
+|   README.md
+|   structure.txt
+|   test-password.php
+|   test_middleware.php
+|   test_repositories.php
+|   test_services.php
+|   
++---admin
+|       dashboard.php
+|       manage-appointments.php
+|       manage-doctors.php
+|       manage-patients.php
+|       manage-specialties.php
+|       reports.php
+|       
++---api
+|       get-schedules.php
+|       get-unread-count.php
+|       mark-all-notifications-read.php
+|       mark-notification-read.php
+|       
++---app
+|   +---Config
+|   |       App.php
+|   |       Database.php
+|   |       Security.php
+|   |       
+|   +---Controllers
+|   |   |   AuthController.php
+|   |   |   
+|   |   +---Admin
+|   |   |       AppointmentController.php
+|   |   |       DashboardController.php
+|   |   |       DoctorController.php
+|   |   |       PatientController.php
+|   |   |       SpecialtyController.php
+|   |   |       
+|   |   +---doctor
+|   |   |       AppointmentController.php
+|   |   |       DashboardController.php
+|   |   |       PatientController.php
+|   |   |       ScheduleController.php
+|   |   |       
+|   |   \---Patient
+|   |           AppointmentController.php
+|   |           DashboardController.php
+|   |           DoctorController.php
+|   |           ProfileController.php
+|   |           
+|   +---Core
+|   |       Controller.php
+|   |       Router.php
+|   |       
+|   +---Helpers
+|   |       functions.php
+|   |       
+|   +---Middleware
+|   |       AuthMiddleware.php
+|   |       CsrfMiddleware.php
+|   |       RoleMiddleware.php
+|   |       
+|   +---Models
+|   |       Appointment.php
+|   |       Doctor.php
+|   |       Patient.php
+|   |       Schedule.php
+|   |       User.php
+|   |       
+|   +---Repositories
+|   |       AppointmentRepository.php
+|   |       DoctorRepository.php
+|   |       PatientRepository.php
+|   |       ScheduleRepository.php
+|   |       SpecialtyRepository.php
+|   |       UserRepository.php
+|   |       
+|   +---Services
+|   |       AppointmentService.php
+|   |       AuthService.php
+|   |       NotificationService.php
+|   |       ScheduleService.php
+|   |       ValidationService.php
+|   |       
+|   \---Validators
++---assets
+|   +---css
+|   |       admin.css
+|   |       auth.css
+|   |       doctor.css
+|   |       patient.css
+|   |       style.css
+|   |       
+|   +---images
+|   |   |   about-img.jpg
+|   |   |   hero-illustration.jpg
+|   |   |   
+|   |   \---avatars
+|   +---js
+|   |       main.js
+|   |       
+|   \---uploads
+|       \---avatars
+|               default-avatar.png
+|               default-avatar1.png
+|               default-doctor.png
+|               
++---auth
+|       login.php
+|       logout.php
+|       signup.php
+|       
++---config
+|       config.php
+|       database.php
+|       session.php
+|       
++---database
+|   +---migrations
+|   \---seeds
++---doctor
+|       appointments.php
+|       dashboard.php
+|       patients.php
+|       profile.php
+|       schedule.php
+|       
++---includes
+|       admin_navbar.php
+|       admin_sidebar.php
+|       doctor_navbar.php
+|       doctor_sidebar.php
+|       functions.php
+|       patient_navbar.php
+|       patient_sidebar.php
+|       
++---patient
+|       appointments.php
+|       book-appointment.php
+|       dashboard.php
+|       doctors.php
+|       medical-records.php
+|       profile.php
+|       
++---public-new
+|   |   .htaccess
+|   |   index.php
+|   |   
+|   \---assets
+|       +---css
+|       |       admin.css
+|       |       auth.css
+|       |       doctor.css
+|       |       patient.css
+|       |       style.css
+|       |       
+|       +---images
+|       |   |   about-img.jpg
+|       |   |   hero-illustration.jpg
+|       |   |   
+|       |   \---avatars
+|       +---js
+|       |       main.js
+|       |       
+|       \---uploads
+|           +---avatars
+|           |       default-avatar.png
+|           |       default-avatar1.png
+|           |       default-doctor.png
+|           |       
+|           \---medical-files
++---routes
+|       web.php
+|       
++---storage
+|   +---cache
+|   +---logs
+|   \---sessions
++---vendor
+|   |   autoload.php
+|   |   
+|   \---composer
+|           autoload_classmap.php
+|           autoload_files.php
+|           autoload_namespaces.php
+|           autoload_psr4.php
+|           autoload_real.php
+|           autoload_static.php
+|           ClassLoader.php
+|           installed.json
+|           installed.php
+|           InstalledVersions.php
+|           LICENSE
+|           platform_check.php
+|           
+\---views
+    +---admin
+    |       appointments.php
+    |       dashboard.php
+    |       doctor-create.php
+    |       doctors.php
+    |       patients.php
+    |       specialties.php
+    |       specialty-create.php
+    |       
+    +---auth
+    |       login.php
+    |       register.php
+    |       
+    +---components
+    +---doctor
+    +---home
+    |       index.php
+    |       
+    +---layouts
+    |       admin.php
+    |       auth.php
+    |       doctor.php
+    |       main.php
+    |       patient.php
+    |       
+    \---patient
+            appointments.php
+            dashboard.php
+            doctors.php
+            
