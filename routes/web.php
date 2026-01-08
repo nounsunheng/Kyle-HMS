@@ -39,19 +39,19 @@ Route::middleware(['auth', 'isPatient'])->prefix('patient')->name('patient.')->g
     })->name('dashboard');
 
     // Doctors
-    Route::get('/doctors', function () {
-        return view('patient.doctors.index');
-    })->name('doctors.index');
+    Route::get('/doctors', [App\Http\Controllers\Patient\DoctorController::class, 'index'])->name('doctors.index');
+    Route::get('/doctors/{doctor}', [App\Http\Controllers\Patient\DoctorController::class, 'show'])->name('doctors.show');
 
     // Appointments
-    Route::get('/appointments', function () {
-        return view('patient.appointments.index');
-    })->name('appointments.index');
+    Route::get('/appointments', [App\Http\Controllers\Patient\AppointmentController::class, 'index'])->name('appointments.index');
+    Route::get('/appointments/create', [App\Http\Controllers\Patient\AppointmentController::class, 'create'])->name('appointments.create');
+    Route::post('/appointments', [App\Http\Controllers\Patient\AppointmentController::class, 'store'])->name('appointments.store');
+    Route::get('/appointments/{appointment}', [App\Http\Controllers\Patient\AppointmentController::class, 'show'])->name('appointments.show');
+    Route::delete('/appointments/{appointment}', [App\Http\Controllers\Patient\AppointmentController::class, 'destroy'])->name('appointments.destroy');
 
     // Medical Records
-    Route::get('/medical-records', function () {
-        return view('patient.medical-records.index');
-    })->name('medical-records.index');
+    Route::get('/medical-records', [App\Http\Controllers\Patient\MedicalRecordController::class, 'index'])->name('medical-records.index');
+    Route::get('/medical-records/{medicalRecord}', [App\Http\Controllers\Patient\MedicalRecordController::class, 'show'])->name('medical-records.show');
 });
 
 /*
