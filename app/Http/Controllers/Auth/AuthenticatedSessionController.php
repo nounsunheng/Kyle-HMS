@@ -28,7 +28,20 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Get authenticated user
+        $user = Auth::user();
+
+        // Redirect based on user role
+        if ($user->hasRole('admin')) {
+            return redirect()->intended(route('admin.dashboard'))->with('success', 'Welcome back, Administrator!');
+        } elseif ($user->hasRole('doctor')) {
+            return redirect()->intended(route('doctor.dashboard'))->with('success', 'Welcome back, Dr. ' . $user->name . '!');
+        } elseif ($user->hasRole('patient')) {
+            return redirect()->intended(route('patient.dashboard'))->with('success', 'Welcome back, ' . $user->name . '!');
+        }
+
+        // Default redirect if no role matched
+        return redirect()->intended(route('dashboard'))->with('success', 'Welcome back!');
     }
 
     /**
@@ -42,6 +55,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')->with('success', 'You have been logged out successfully.');
     }
 }
