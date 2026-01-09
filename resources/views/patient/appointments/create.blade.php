@@ -64,7 +64,7 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                         @foreach($timeSlots as $slot)
                             <label class="relative flex items-center justify-center p-3 border rounded-lg cursor-pointer transition duration-150
-                                {{ $slot['available'] ? 'border-gray-300 hover:border-primary-500 hover:bg-primary-50' : 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-50' }}">
+                                {{ $slot['available'] ? 'border-gray-300 hover:border-primary-500 hover:bg-primary-50  text-gray-700' : 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-50' }}">
                                 <input type="radio"
                                        name="appointment_time"
                                        value="{{ $slot['time'] }}"
@@ -98,7 +98,7 @@
                               rows="4"
                               required
                               placeholder="Please describe your symptoms or reason for consultation..."
-                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">{{ old('reason') }}</textarea>
+                              class="w-full rounded-md border-gray-300 shadow-sm  text-gray-700 focus:border-primary-500 focus:ring-primary-500">{{ old('reason') }}</textarea>
                     @error('reason')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror

@@ -61,24 +61,26 @@ Route::middleware(['auth', 'isPatient'])->prefix('patient')->name('patient.')->g
 */
 Route::middleware(['auth', 'isDoctor'])->prefix('doctor')->name('doctor.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('doctor.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Doctor\DashboardController::class, 'index'])->name('dashboard');
 
-    // Schedule
-    Route::get('/schedule', function () {
-        return view('doctor.schedule.index');
-    })->name('schedule.index');
+    // Schedule Management
+    Route::get('/schedule', [App\Http\Controllers\Doctor\ScheduleController::class, 'index'])->name('schedule.index');
+    Route::get('/schedule/create', [App\Http\Controllers\Doctor\ScheduleController::class, 'create'])->name('schedule.create');
+    Route::post('/schedule', [App\Http\Controllers\Doctor\ScheduleController::class, 'store'])->name('schedule.store');
+    Route::get('/schedule/{schedule}', [App\Http\Controllers\Doctor\ScheduleController::class, 'show'])->name('schedule.show');
+    Route::get('/schedule/{schedule}/edit', [App\Http\Controllers\Doctor\ScheduleController::class, 'edit'])->name('schedule.edit');
+    Route::put('/schedule/{schedule}', [App\Http\Controllers\Doctor\ScheduleController::class, 'update'])->name('schedule.update');
+    Route::delete('/schedule/{schedule}', [App\Http\Controllers\Doctor\ScheduleController::class, 'destroy'])->name('schedule.destroy');
+    Route::post('/schedule/{schedule}/cancel', [App\Http\Controllers\Doctor\ScheduleController::class, 'cancel'])->name('schedule.cancel');
 
     // Appointments
-    Route::get('/appointments', function () {
-        return view('doctor.appointments.index');
-    })->name('appointments.index');
+    Route::get('/appointments', [App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('appointments.index');
+    Route::get('/appointments/{appointment}', [App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('appointments.show');
+    Route::patch('/appointments/{appointment}/status', [App\Http\Controllers\Doctor\AppointmentController::class, 'updateStatus'])->name('appointments.updateStatus');
 
     // Patients
-    Route::get('/patients', function () {
-        return view('doctor.patients.index');
-    })->name('patients.index');
+    Route::get('/patients', [App\Http\Controllers\Doctor\PatientController::class, 'index'])->name('patients.index');
+    Route::get('/patients/{patient}', [App\Http\Controllers\Doctor\PatientController::class, 'show'])->name('patients.show');
 });
 
 /*

@@ -19,7 +19,7 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Today's Appointments</dt>
-                            <dd class="text-2xl font-semibold text-gray-900">0</dd>
+                            <dd class="text-2xl font-semibold text-gray-900">{{ $todayAppointments }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Total Patients</dt>
-                            <dd class="text-2xl font-semibold text-gray-900">0</dd>
+                            <dd class="text-2xl font-semibold text-gray-900">{{ $totalPatients }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Upcoming Sessions</dt>
-                            <dd class="text-2xl font-semibold text-gray-900">0</dd>
+                            <dd class="text-2xl font-semibold text-gray-900">{{ $upcomingSessions }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -114,12 +114,41 @@
         <!-- Today's Schedule (Placeholder) -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Today's Schedule</h2>
-            <div class="text-center py-8 text-gray-500">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                <p class="mt-2">No appointments scheduled for today</p>
-            </div>
+            @if($todaySchedule)
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700">{{ $todaySchedule->formatted_time_range }}</span>
+                        <span class="text-sm text-gray-600">{{ $todaySchedule->booked_appointments }}/{{ $todaySchedule->max_appointments }} booked</span>
+                    </div>
+                </div>
+                @if($todaySchedule->appointments->count() > 0)
+                    <div class="space-y-2">
+                        @foreach($todaySchedule->appointments->sortBy('appointment_time') as $appointment)
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ $appointment->patient->user->name }}</p>
+                                    <p class="text-sm text-gray-600">{{ $appointment->formatted_time }}</p>
+                                </div>
+                                <span class="badge {{ $appointment->status_badge_class }} badge-sm">
+                                    {{ ucfirst($appointment->status) }}
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-center py-4 text-gray-500">No appointments booked yet</p>
+                @endif
+            @else
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <p class="mt-2">No schedule for today</p>
+                    <a href="{{ route('doctor.schedule.create') }}" class="mt-3 inline-block text-primary-600 hover:text-primary-700">
+                        Create Schedule
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 </x-layouts.doctor>

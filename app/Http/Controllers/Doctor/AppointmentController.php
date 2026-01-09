@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Http\Controllers\Doctor;
+
+use App\Http\Controllers\Controller;
+use App\Models\Appointment;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class AppointmentController extends Controller
+{
+    /**
+     * Display a listing of appointments
+     */
+    public function index(Request $request)
+    {
+        $doctor = Auth::user()->doctor;
+
+        $query = Appointment::with(['patient.user', 'schedule'])
+            ->whereHas('schedule', function ($q) use ($doctor) {
+                $q->where('doctor_id', $doctor->id);
+            });
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by date
+        if ($request->filled('date')) {
+            $query->whereHas('schedule', function ($q) use ($request) {
+                $q->where('schedule_date', $request->date);
+            });
+        }
+
+        $appointments = $query->orderBy('created_at', 'desc')->paginate(15);
+
+        return view('doctor.appointments.index', compact('appointments'));
+    }
+
+    /**
+     * Display the specified appointment
+     */
+    public function show(Appointment $appointment)
+    {
+        // Ensure doctor can only view their own appointments
+        if ($appointment->schedule->doctor_id !== Auth::user()->doctor->id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $appointment->load(['patient.user', 'schedule', 'medicalRecord']);
+
+        return view('doctor.appointments.show', compact('appointment'));
+    }
+
+    /**
+     * Update appointment status
+     */
+    public function updateStatus(Request $request, Appointment $appointment)
+    {
+        // Ensure doctor can only update their own appointments
+        if ($appointment->schedule->doctor_id !== Auth::user()->doctor->id) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $request->validate([
+            'status' => 'required|in:confirmed,completed,no_show',
+        ]);
+
+        $appointment->update([
+            'status' => $request->status,
+        ]);
+
+        return back()->with('success', 'Appointment status updated successfully!');
+    }
+}
