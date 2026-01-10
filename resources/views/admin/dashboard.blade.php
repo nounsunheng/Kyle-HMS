@@ -19,7 +19,7 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Total Doctors</dt>
-                            <dd class="text-2xl font-semibold text-gray-900">{{ \App\Models\Doctor::count() }}</dd>
+                            <dd class="text-2xl font-semibold text-gray-900">{{ $totalDoctors }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Total Patients</dt>
-                            <dd class="text-2xl font-semibold text-gray-900">{{ \App\Models\Patient::count() }}</dd>
+                            <dd class="text-2xl font-semibold text-gray-900">{{ $totalPatients }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Total Appointments</dt>
-                            <dd class="text-2xl font-semibold text-gray-900">{{ \App\Models\Appointment::count() }}</dd>
+                            <dd class="text-2xl font-semibold text-gray-900">{{ $totalAppointments }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Specialties</dt>
-                            <dd class="text-2xl font-semibold text-gray-900">{{ \App\Models\Specialty::count() }}</dd>
+                            <dd class="text-2xl font-semibold text-gray-900">{{ $totalSpecialties }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -128,13 +128,31 @@
 
         <!-- Recent Activity -->
         <div class="bg-white rounded-lg shadow-sm p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">System Overview</h2>
-            <div class="text-center py-8 text-gray-500">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
-                <p class="mt-2">System statistics and analytics will appear here</p>
-            </div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Recent Appointments</h2>
+            @if($recentAppointments->count() > 0)
+                <div class="space-y-3">
+                    @foreach($recentAppointments as $appointment)
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-900">{{ $appointment->patient->user->name }}</p>
+                                <p class="text-sm text-gray-600">
+                                    with Dr. {{ $appointment->schedule->doctor->user->name }}
+                                    • {{ $appointment->schedule->formatted_date }}
+                                </p>
+                            </div>
+                            <span class="badge {{ $appointment->status_badge_class }} badge-sm">
+                                {{ ucfirst($appointment->status) }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+                <a href="{{ route('admin.appointments.index') }}"
+                   class="block mt-4 text-center text-primary-600 hover:text-primary-700 text-sm font-medium">
+                    View All Appointments →
+                </a>
+            @else
+                <p class="text-center py-8 text-gray-500">No appointments yet</p>
+            @endif
         </div>
     </div>
 </x-layouts.admin>
