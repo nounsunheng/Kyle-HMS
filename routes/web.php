@@ -90,29 +90,25 @@ Route::middleware(['auth', 'isDoctor'])->prefix('doctor')->name('doctor.')->grou
 */
 Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
     // Doctors Management
-    Route::get('/doctors', function () {
-        return view('admin.doctors.index');
-    })->name('doctors.index');
+    Route::resource('doctors', App\Http\Controllers\Admin\DoctorController::class);
 
     // Patients Management
-    Route::get('/patients', function () {
-        return view('admin.patients.index');
-    })->name('patients.index');
+    Route::get('/patients', [App\Http\Controllers\Admin\PatientController::class, 'index'])->name('patients.index');
+    Route::get('/patients/{patient}', [App\Http\Controllers\Admin\PatientController::class, 'show'])->name('patients.show');
+    Route::get('/patients/{patient}/edit', [App\Http\Controllers\Admin\PatientController::class, 'edit'])->name('patients.edit');
+    Route::put('/patients/{patient}', [App\Http\Controllers\Admin\PatientController::class, 'update'])->name('patients.update');
+    Route::delete('/patients/{patient}', [App\Http\Controllers\Admin\PatientController::class, 'destroy'])->name('patients.destroy');
 
     // Specialties Management
-    Route::get('/specialties', function () {
-        return view('admin.specialties.index');
-    })->name('specialties.index');
+    Route::resource('specialties', App\Http\Controllers\Admin\SpecialtyController::class);
 
     // Appointments Management
-    Route::get('/appointments', function () {
-        return view('admin.appointments.index');
-    })->name('appointments.index');
+    Route::get('/appointments', [App\Http\Controllers\Admin\AppointmentController::class, 'index'])->name('appointments.index');
+    Route::get('/appointments/{appointment}', [App\Http\Controllers\Admin\AppointmentController::class, 'show'])->name('appointments.show');
+    Route::post('/appointments/{appointment}/cancel', [App\Http\Controllers\Admin\AppointmentController::class, 'cancel'])->name('appointments.cancel');
 
     // Reports
     Route::get('/reports', function () {
