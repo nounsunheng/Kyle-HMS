@@ -110,10 +110,16 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::get('/appointments/{appointment}', [App\Http\Controllers\Admin\AppointmentController::class, 'show'])->name('appointments.show');
     Route::post('/appointments/{appointment}/cancel', [App\Http\Controllers\Admin\AppointmentController::class, 'cancel'])->name('appointments.cancel');
 
-    // Reports
-    Route::get('/reports', function () {
-        return view('admin.reports.index');
-    })->name('reports.index');
+    // Reports & Exports
+    Route::get('/reports', [App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export', [App\Http\Controllers\Admin\ReportController::class, 'exportPage'])->name('reports.export');
+
+    // Export Actions
+    Route::get('/reports/export-doctors', [App\Http\Controllers\Admin\ReportController::class, 'exportDoctors'])->name('reports.export-doctors');
+    Route::get('/reports/export-patients', [App\Http\Controllers\Admin\ReportController::class, 'exportPatients'])->name('reports.export-patients');
+    Route::get('/reports/export-appointments', [App\Http\Controllers\Admin\ReportController::class, 'exportAppointments'])->name('reports.export-appointments');
+    Route::get('/reports/export-medical-records', [App\Http\Controllers\Admin\ReportController::class, 'exportMedicalRecords'])->name('reports.export-medical-records');
+    Route::get('/reports/export-summary', [App\Http\Controllers\Admin\ReportController::class, 'exportSummary'])->name('reports.export-summary');
 });
 
 require __DIR__.'/auth.php';
