@@ -72,7 +72,7 @@
                                        {{ old('appointment_time') == $slot['time'] ? 'checked' : '' }}
                                        class="sr-only peer"
                                        required>
-                                <span class="text-sm font-medium peer-checked:text-primary-600">
+                                <span class="text-sm font-medium text-gray-700 peer-checked:text-primary-600">
                                     {{ $slot['formatted'] }}
                                 </span>
                                 <span class="absolute inset-0 rounded-lg border-2 border-transparent peer-checked:border-primary-600 pointer-events-none"></span>

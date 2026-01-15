@@ -1,9 +1,10 @@
 <x-layouts.doctor>
     <div class="max-w-4xl mx-auto space-y-6">
         <!-- Back Button -->
-        <a href="{{ route('doctor.appointments.index') }}" class="inline-flex items-center text-secondary-600 hover:text-secondary-700">
+        <a href="{{ route('doctor.appointments.index') }}"
+            class="inline-flex items-center text-secondary-600 hover:text-secondary-700">
             <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Back to Appointments
         </a>
@@ -26,8 +27,10 @@
                     <h2 class="text-lg font-semibold text-gray-900 mb-4">Patient Information</h2>
                     <div class="space-y-3">
                         <div class="flex items-start">
-                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
                             <div>
                                 <p class="text-sm text-gray-500">Name</p>
@@ -36,8 +39,10 @@
                         </div>
 
                         <div class="flex items-start">
-                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                             <div>
                                 <p class="text-sm text-gray-500">Email</p>
@@ -46,8 +51,10 @@
                         </div>
 
                         <div class="flex items-start">
-                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                             <div>
                                 <p class="text-sm text-gray-500">Phone</p>
@@ -56,8 +63,10 @@
                         </div>
 
                         <div class="flex items-start">
-                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <div>
                                 <p class="text-sm text-gray-500">Age</p>
@@ -65,10 +74,12 @@
                             </div>
                         </div>
 
-                        @if($appointment->patient->blood_type)
+                        @if ($appointment->patient->blood_type)
                             <div class="flex items-start">
-                                <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                                 </svg>
                                 <div>
                                     <p class="text-sm text-gray-500">Blood Type</p>
@@ -79,7 +90,7 @@
 
                         <div class="pt-3 border-t border-gray-200">
                             <a href="{{ route('doctor.patients.show', $appointment->patient) }}"
-                               class="text-secondary-600 hover:text-secondary-700 text-sm font-medium">
+                                class="text-secondary-600 hover:text-secondary-700 text-sm font-medium">
                                 View Full Patient Record →
                             </a>
                         </div>
@@ -91,8 +102,10 @@
                     <h2 class="text-lg font-semibold text-gray-900 mb-4">Appointment Details</h2>
                     <div class="space-y-3">
                         <div class="flex items-start">
-                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <div>
                                 <p class="text-sm text-gray-500">Date</p>
@@ -101,8 +114,10 @@
                         </div>
 
                         <div class="flex items-start">
-                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div>
                                 <p class="text-sm text-gray-500">Time</p>
@@ -110,10 +125,12 @@
                             </div>
                         </div>
 
-                        @if($appointment->reason)
+                        @if ($appointment->reason)
                             <div class="flex items-start">
-                                <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                                 <div>
                                     <p class="text-sm text-gray-500">Reason for Visit</p>
@@ -122,10 +139,12 @@
                             </div>
                         @endif
 
-                        @if($appointment->notes)
+                        @if ($appointment->notes)
                             <div class="flex items-start">
-                                <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                                <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                                 </svg>
                                 <div>
                                     <p class="text-sm text-gray-500">Notes</p>
@@ -135,49 +154,102 @@
                         @endif
 
                         <div class="flex items-start">
-                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            <svg class="h-5 w-5 mr-3 text-secondary-600 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div>
                                 <p class="text-sm text-gray-500">Booked On</p>
-                                <p class="text-gray-900">{{ $appointment->created_at->format('F d, Y \a\t g:i A') }}</p>
+                                <p class="text-gray-900">{{ $appointment->created_at->format('F d, Y \a\t g:i A') }}
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Update Status -->
-            @if(in_array($appointment->status, ['pending', 'confirmed']) && $appointment->schedule->schedule_date->isToday())
+            <!-- Appointment Actions -->
+            @if (in_array($appointment->status, ['pending', 'confirmed']))
                 <div class="border-t border-gray-200 pt-6 mt-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Update Status</h3>
-                    <form method="POST" action="{{ route('doctor.appointments.updateStatus', $appointment) }}" class="flex items-center space-x-4">
-                        @csrf
-                        @method('PATCH')
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Appointment Actions</h3>
 
-                        <select name="status" required
-                                class="rounded-md border-gray-300 shadow-sm focus:border-secondary-500 focus:ring-secondary-500">
-                            <option value="confirmed" {{ $appointment->status === 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                            <option value="completed">Completed</option>
-                            <option value="no_show">No Show</option>
-                        </select>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Update Status -->
+                        @if ($appointment->schedule->schedule_date->isToday())
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">Update Status</h4>
+                                <form method="POST"
+                                    action="{{ route('doctor.appointments.updateStatus', $appointment) }}"
+                                    class="space-y-3">
+                                    @csrf
+                                    @method('PATCH')
 
-                        <button type="submit"
-                                class="px-6 py-2 bg-secondary-600 hover:bg-secondary-700 text-white font-semibold rounded-md transition duration-150">
-                            Update Status
-                        </button>
-                    </form>
+                                    <select name="status" required
+                                        class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-secondary-500 focus:ring-secondary-500">
+                                        <option value="confirmed"
+                                            {{ $appointment->status === 'confirmed' ? 'selected' : '' }}>Confirmed
+                                        </option>
+                                        <option value="completed">Completed</option>
+                                        <option value="no_show">No Show</option>
+                                    </select>
+
+                                    <button type="submit"
+                                        class="w-full px-4 py-2 bg-secondary-600 hover:bg-secondary-700 text-white font-semibold rounded-md transition duration-150">
+                                        Update Status
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
+
+                        <!-- Cancel Appointment -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Cancel Appointment</h4>
+                            <form method="POST" action="{{ route('doctor.appointments.cancel', $appointment) }}"
+                                x-data="{ showCancel: false }" @submit.prevent="showCancel && $el.submit()">
+                                @csrf
+
+                                <div class="space-y-3">
+                                    <textarea name="cancellation_reason" required rows="3" placeholder="Reason for cancellation (required)..."
+                                        class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-red-500 focus:ring-red-500"></textarea>
+
+                                    <button type="button"
+                                        @click="if(confirm('Are you sure you want to cancel this appointment? The patient will be notified.')) { showCancel = true; $el.closest('form').submit(); }"
+                                        class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-150">
+                                        Cancel Appointment
+                                    </button>
+                                </div>
+                            </form>
+                            <p class="mt-2 text-xs text-gray-500">Patient will be notified via email</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <!-- Create Medical Record -->
+            @if ($appointment->status === 'completed' && !$appointment->medicalRecord)
+                <div class="border-t border-gray-200 pt-6 mt-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Medical Record</h3>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-sm text-blue-800 mb-3">No medical record has been created for this appointment
+                            yet.</p>
+                        <a href="{{ route('doctor.medical-records.create', $appointment) }}"
+                            class="inline-block px-6 py-2 bg-secondary-600 hover:bg-secondary-700 text-white font-semibold rounded-md transition duration-150">
+                            Create Medical Record
+                        </a>
+                    </div>
                 </div>
             @endif
 
             <!-- Medical Record -->
-            @if($appointment->medicalRecord)
+            @if ($appointment->medicalRecord)
                 <div class="border-t border-gray-200 pt-6 mt-6">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Medical Record</h3>
                     <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-sm text-gray-600 mb-2">A medical record has been created for this appointment.</p>
+                        <p class="text-sm text-gray-600 mb-2">A medical record has been created for this appointment.
+                        </p>
                         <a href="{{ route('doctor.patients.show', $appointment->patient) }}"
-                           class="text-secondary-600 hover:text-secondary-700 text-sm font-medium">
+                            class="text-secondary-600 hover:text-secondary-700 text-sm font-medium">
                             View Medical Record →
                         </a>
                     </div>
