@@ -77,10 +77,18 @@ Route::middleware(['auth', 'isDoctor'])->prefix('doctor')->name('doctor.')->grou
     Route::get('/appointments', [App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('appointments.index');
     Route::get('/appointments/{appointment}', [App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('appointments.show');
     Route::patch('/appointments/{appointment}/status', [App\Http\Controllers\Doctor\AppointmentController::class, 'updateStatus'])->name('appointments.updateStatus');
+    Route::post('/appointments/{appointment}/cancel', [App\Http\Controllers\Doctor\AppointmentController::class, 'cancel'])->name('appointments.cancel');
 
     // Patients
     Route::get('/patients', [App\Http\Controllers\Doctor\PatientController::class, 'index'])->name('patients.index');
     Route::get('/patients/{patient}', [App\Http\Controllers\Doctor\PatientController::class, 'show'])->name('patients.show');
+
+    // Medical Records
+    Route::get('/medical-records/create/{appointment}', [App\Http\Controllers\Doctor\MedicalRecordController::class, 'create'])->name('medical-records.create');
+    Route::post('/medical-records/{appointment}', [App\Http\Controllers\Doctor\MedicalRecordController::class, 'store'])->name('medical-records.store');
+    Route::get('/medical-records/{medicalRecord}', [App\Http\Controllers\Doctor\MedicalRecordController::class, 'show'])->name('medical-records.show');
+    Route::get('/medical-records/{medicalRecord}/edit', [App\Http\Controllers\Doctor\MedicalRecordController::class, 'edit'])->name('medical-records.edit');
+    Route::put('/medical-records/{medicalRecord}', [App\Http\Controllers\Doctor\MedicalRecordController::class, 'update'])->name('medical-records.update');
 });
 
 /*
@@ -122,4 +130,4 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::get('/reports/export-summary', [App\Http\Controllers\Admin\ReportController::class, 'exportSummary'])->name('reports.export-summary');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
