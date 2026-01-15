@@ -31,7 +31,7 @@
                            value="{{ old('schedule_date', $schedule->schedule_date->format('Y-m-d')) }}"
                            min="{{ now()->format('Y-m-d') }}"
                            required
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-secondary-500 focus:ring-secondary-500">
+                           class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-secondary-500 focus:ring-secondary-500">
                     @error('schedule_date')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -48,7 +48,7 @@
                                name="start_time"
                                value="{{ old('start_time', $schedule->start_time) }}"
                                required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-secondary-500 focus:ring-secondary-500">
+                               class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-secondary-500 focus:ring-secondary-500">
                         @error('start_time')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -63,7 +63,7 @@
                                name="end_time"
                                value="{{ old('end_time', $schedule->end_time) }}"
                                required
-                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-secondary-500 focus:ring-secondary-500">
+                               class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-secondary-500 focus:ring-secondary-500">
                         @error('end_time')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -78,7 +78,7 @@
                     <select id="duration_per_appointment"
                             name="duration_per_appointment"
                             required
-                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-secondary-500 focus:ring-secondary-500">
+                            class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-secondary-500 focus:ring-secondary-500">
                         <option value="15" {{ old('duration_per_appointment', $schedule->duration_per_appointment) == '15' ? 'selected' : '' }}>15 minutes</option>
                         <option value="30" {{ old('duration_per_appointment', $schedule->duration_per_appointment) == '30' ? 'selected' : '' }}>30 minutes</option>
                         <option value="45" {{ old('duration_per_appointment', $schedule->duration_per_appointment) == '45' ? 'selected' : '' }}>45 minutes</option>
