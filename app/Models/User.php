@@ -72,16 +72,74 @@ class User extends Authenticatable
 
     public function isPatient()
     {
-        return $this->usertype === 'patient';
+        return $this->usertype === 'patient' || $this->hasRole('patient');
     }
 
     public function isDoctor()
     {
-        return $this->usertype === 'doctor';
+        return $this->usertype === 'doctor' || $this->hasRole('doctor');
     }
 
     public function isAdmin()
     {
-        return $this->usertype === 'admin';
+        return $this->usertype === 'admin' || $this->hasRole('admin');
+    }
+
+    /**
+     * Get user's avatar URL
+     * This accessor provides a unified way to get avatar across all user types
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        // Patient avatar
+        if ($this->patient) {
+            return $this->patient->profile_image_url;
+        }
+
+        // Doctor avatar
+        if ($this->doctor) {
+            return $this->doctor->profile_image_url;
+        }
+
+        // Admin avatar
+        if ($this->admin) {
+            return $this->admin->profile_image_url;
+        }
+
+        // Fallback default avatar
+        $initial = strtoupper(substr($this->name, 0, 1));
+        return "https://ui-avatars.com/api/?name={$initial}&size=500&background=6b7280&color=fff&bold=true";
+    }
+
+    /**
+     * Get user's full name with title (for doctors)
+     */
+    public function getFullNameAttribute(): string
+    {
+        if ($this->doctor) {
+            return 'Dr. ' . $this->name;
+        }
+
+        return $this->name;
+    }
+
+    /**
+     * Get user's role name
+     */
+    public function getRoleNameAttribute(): string
+    {
+        if ($this->isAdmin()) {
+            return 'Administrator';
+        }
+
+        if ($this->isDoctor()) {
+            return 'Doctor';
+        }
+
+        if ($this->isPatient()) {
+            return 'Patient';
+        }
+
+        return 'User';
     }
 }
