@@ -25,6 +25,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Avatar routes
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
+
+    // ADD THIS NEW ROUTE FOR PATIENT MEDICAL INFO
+    Route::patch('/profile/patient-info', [ProfileController::class, 'updatePatientInfo'])->name('profile.patient-info.update');
 });
 
 /*
@@ -33,10 +40,8 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'isPatient'])->prefix('patient')->name('patient.')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', function () {
-        return view('patient.dashboard');
-    })->name('dashboard');
+    // Dashboard - FIXED: Now uses DashboardController instead of Closure
+    Route::get('/dashboard', [App\Http\Controllers\Patient\DashboardController::class, 'index'])->name('dashboard');
 
     // Doctors
     Route::get('/doctors', [App\Http\Controllers\Patient\DoctorController::class, 'index'])->name('doctors.index');
