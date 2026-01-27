@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Doctor extends Model
 {
@@ -82,7 +83,10 @@ class Doctor extends Model
         if ($this->profile_image) {
             return asset('storage/' . $this->profile_image);
         }
-        return asset('images/default-doctor.png');
+
+        // Default avatar
+        $initial = strtoupper(substr($this->user->name, 0, 1));
+        return "https://ui-avatars.com/api/?name={$initial}&size=200&background=00A86B&color=fff";
     }
 
     /**
