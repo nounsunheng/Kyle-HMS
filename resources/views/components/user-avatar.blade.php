@@ -1,18 +1,19 @@
 @props(['size' => 'md', 'user' => null])
 
 @php
-$user = $user ?? auth()->user();
-$sizes = [
-    'xs' => 'w-8 h-8',
-    'sm' => 'w-10 h-10',
-    'md' => 'w-12 h-12',
-    'lg' => 'w-16 h-16',
-    'xl' => 'w-24 h-24',
-    '2xl' => 'w-32 h-32',
+$sizeClasses = [
+    'xs' => 'h-6 w-6',
+    'sm' => 'h-8 w-8',
+    'md' => 'h-10 w-10',
+    'lg' => 'h-12 w-12',
+    'xl' => 'h-16 w-16',
+    '2xl' => 'h-20 w-20',
 ];
-$sizeClass = $sizes[$size] ?? $sizes['md'];
+
+$user = $user ?? auth()->user();
+$avatarUrl = $user->avatar_url;
 @endphp
 
-<img src="{{ $user->avatar_url }}"
+<img src="{{ $avatarUrl }}"
      alt="{{ $user->name }}"
-     {{ $attributes->merge(['class' => "{$sizeClass} rounded-full object-cover"]) }}>
+     {{ $attributes->merge(['class' => $sizeClasses[$size] . ' rounded-full object-cover']) }}>
