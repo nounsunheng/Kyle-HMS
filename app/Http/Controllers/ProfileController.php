@@ -466,4 +466,50 @@ class ProfileController extends Controller
                 ->with('error', 'Failed to update medical information. Please try again.');
         }
     }
+
+    /**
+     * Update doctor-specific professional information
+     */
+    public function updateDoctorInfo(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Only allow doctors to update
+        if (!$user->isDoctor() || !$user->doctor) {
+            return Redirect::route('profile.edit')->with('error', 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'phone' => ['required', 'string', 'max:20'],
+            'years_of_experience' => ['required', 'integer', 'min:0', 'max:70'],
+            'qualifications' => ['nullable', 'string', 'max:1000'],
+            'bio' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $user->doctor->update($validated);
+
+            // Clear cache
+            Cache::forget("doctor_dashboard_{$user->doctor->id}");
+
+            DB::commit();
+
+            return Redirect::route('profile.edit')
+                ->with('status', 'doctor-info-updated')
+                ->with('success', 'Professional information updated successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Doctor Info Update Error: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return Redirect::route('profile.edit')
+                ->with('error', 'Failed to update professional information. Please try again.');
+        }
+    }
 }
