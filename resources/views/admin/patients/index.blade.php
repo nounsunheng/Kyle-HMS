@@ -58,10 +58,11 @@
                             <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div
-                                            class="h-10 w-10 flex-shrink-0 bg-green-100 rounded-full flex items-center justify-center">
-                                            <span
-                                                class="text-green-600 font-semibold">{{ substr($patient->user->name, 0, 2) }}</span>
+                                        <!-- Patient Profile Picture -->
+                                        <div class="h-10 w-10 flex-shrink-0 rounded-full overflow-hidden ring-2 ring-blue-100">
+                                            <img src="{{ $patient->profile_image_url }}"
+                                                 alt="{{ $patient->user->name }}"
+                                                 class="h-full w-full object-cover">
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">{{ $patient->user->name }}

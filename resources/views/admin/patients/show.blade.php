@@ -12,16 +12,15 @@
         <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-start justify-between mb-6">
                 <div class="flex items-center">
-                    <div
-                        class="h-20 w-20 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center">
-                        <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
+                    <!-- Patient Profile Picture -->
+                    <div class="h-20 w-20 rounded-full overflow-hidden flex-shrink-0 ring-4 ring-blue-100 shadow-lg">
+                        <img src="{{ $patient->profile_image_url }}"
+                             alt="{{ $patient->user->name }}"
+                             class="h-full w-full object-cover">
                     </div>
                     <div class="ml-6">
                         <h1 class="text-3xl font-bold text-gray-900">{{ $patient->user->name }}</h1>
-                        <p class="text-lg text-gray-600 mt-1">Patient ID: #{{ $patient->id }}</p>
+                        <p class="text-lg text-gray-600 mt-1">Patient ID: #{{ str_pad($patient->id, 5, '0', STR_PAD_LEFT) }}</p>
                     </div>
                 </div>
                 <a href="{{ route('admin.patients.edit', $patient) }}"
@@ -114,17 +113,25 @@
                 <div class="space-y-3">
                     @foreach ($patient->appointments->sortByDesc('created_at')->take(10) as $appointment)
                         <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                            <div>
-                                <p class="font-semibold text-gray-900">Dr.
-                                    {{ $appointment->schedule->doctor->user->name }}</p>
-                                <p class="text-sm text-gray-600">
-                                    {{ $appointment->schedule->doctor->specialty->name }} •
-                                    {{ $appointment->schedule->formatted_date }} at {{ $appointment->formatted_time }}
-                                </p>
-                                @if ($appointment->reason)
-                                    <p class="text-sm text-gray-500 mt-1">Reason:
-                                        {{ Str::limit($appointment->reason, 60) }}</p>
-                                @endif
+                            <div class="flex items-center space-x-4">
+                                <!-- Doctor Profile Picture in Appointment -->
+                                <div class="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-green-100">
+                                    <img src="{{ $appointment->schedule->doctor->profile_image_url }}"
+                                         alt="Dr. {{ $appointment->schedule->doctor->user->name }}"
+                                         class="h-full w-full object-cover">
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900">Dr.
+                                        {{ $appointment->schedule->doctor->user->name }}</p>
+                                    <p class="text-sm text-gray-600">
+                                        {{ $appointment->schedule->doctor->specialty->name }} •
+                                        {{ $appointment->schedule->formatted_date }} at {{ $appointment->formatted_time }}
+                                    </p>
+                                    @if ($appointment->reason)
+                                        <p class="text-sm text-gray-500 mt-1">Reason:
+                                            {{ Str::limit($appointment->reason, 60) }}</p>
+                                    @endif
+                                </div>
                             </div>
                             <span class="badge {{ $appointment->status_badge_class }} badge-sm">
                                 {{ ucfirst($appointment->status) }}
@@ -146,11 +153,18 @@
                     @foreach ($patient->medicalRecords->sortByDesc('visit_date')->take(5) as $record)
                         <div class="border border-gray-200 rounded-lg p-5">
                             <div class="flex items-start justify-between mb-3">
-                                <div>
-                                    <p class="text-sm font-medium text-gray-500">{{ $record->formatted_visit_date }}
-                                    </p>
-                                    <p class="font-semibold text-gray-900">Dr. {{ $record->doctor->user->name }}</p>
-                                    <p class="text-sm text-gray-600">{{ $record->doctor->specialty->name }}</p>
+                                <div class="flex items-center space-x-3">
+                                    <!-- Doctor Profile Picture in Medical Record -->
+                                    <div class="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-green-100">
+                                        <img src="{{ $record->doctor->profile_image_url }}"
+                                             alt="Dr. {{ $record->doctor->user->name }}"
+                                             class="h-full w-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">{{ $record->formatted_visit_date }}</p>
+                                        <p class="font-semibold text-gray-900">Dr. {{ $record->doctor->user->name }}</p>
+                                        <p class="text-sm text-gray-600">{{ $record->doctor->specialty->name }}</p>
+                                    </div>
                                 </div>
                             </div>
 
