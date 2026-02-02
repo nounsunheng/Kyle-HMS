@@ -1,9 +1,4 @@
 <x-layouts.admin>
-    {{-- Include Chart.js --}}
-    @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    @endpush
-
     <div class="space-y-6">
 
         {{-- Welcome Header --}}
@@ -30,10 +25,17 @@
                                         Administrator
                                     </span>
                                 </div>
-                                <div class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
-                                    <span class="text-white text-sm font-medium">
-                                        {{ now()->format('l, F d, Y') }}
-                                    </span>
+                                <div class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30" x-data="{
+                                    date: '',
+                                    time: '',
+                                    updateDateTime() {
+                                        const now = new Date();
+                                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                                        this.date = now.toLocaleDateString('en-US', options);
+                                        this.time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                                    }
+                                }" x-init="updateDateTime(); setInterval(() => updateDateTime(), 1000)">
+                                    <span class="text-white text-sm font-medium" x-text="date + ' ' + time"></span>
                                 </div>
                                 <div
                                     class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center">
@@ -143,9 +145,7 @@
                 </div>
                 <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Total Appointments</h3>
                 <p class="text-4xl font-bold text-gray-900 mb-2" x-text="count"></p>
-                <p class="text-sm text-gray-600">
-                    <span class="text-purple-600 font-semibold">{{ $stats['week_appointments'] }}</span> this week
-                </p>
+                <p class="text-sm text-gray-600">{{ $stats['week_appointments'] }} this week</p>
             </div>
 
             {{-- Medical Specialties --}}
@@ -328,9 +328,9 @@
         </div>
 
         {{-- Charts Row --}}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
 
-            {{-- Appointment Status Breakdown (Pie Chart) --}}
+            {{-- Appointment Status Breakdown (Doughnut Chart) --}}
             <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <svg class="h-5 w-5 text-purple-600 mr-2" fill="none" stroke="currentColor"
@@ -342,11 +342,13 @@
                     </svg>
                     Appointment Status Distribution
                 </h3>
-                <canvas id="statusChart" height="250"></canvas>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
             </div>
 
             {{-- Monthly Trends (Line Chart) --}}
-            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 xl:col-span-2">
                 <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                     <svg class="h-5 w-5 text-blue-600 mr-2" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -355,7 +357,9 @@
                     </svg>
                     Appointment Trends (6 Months)
                 </h3>
-                <canvas id="trendsChart" height="250"></canvas>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="trendsChart"></canvas>
+                </div>
             </div>
 
         </div>
@@ -373,7 +377,9 @@
                     </svg>
                     User Registration Trends
                 </h3>
-                <canvas id="registrationChart" height="250"></canvas>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="registrationChart"></canvas>
+                </div>
             </div>
 
             {{-- Top Performing Doctors --}}
@@ -415,210 +421,319 @@
                 </div>
             </div>
 
-            {{-- Recent Appointments --}}
-            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-gray-900 flex items-center">
-                        <svg class="h-5 w-5 text-purple-600 mr-2" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Recent Appointments
-                    </h3>
-                    <a href="{{ route('admin.appointments.index') }}"
-                        class="text-sm font-medium text-purple-600 hover:text-purple-700">
-                        View All →
-                    </a>
-                </div>
-
-                @if ($recentAppointments->count() > 0)
-                    <div class="space-y-3">
-                        @foreach ($recentAppointments as $appointment)
-                            <div
-                                class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition duration-150">
-                                <div class="flex-1">
-                                    <div class="flex items-center space-x-3">
-                                        <div
-                                            class="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center">
-                                            <span class="text-sm font-bold text-purple-600">
-                                                {{ substr($appointment->patient->user->name, 0, 1) }}
-                                            </span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="font-semibold text-gray-900">
-                                                {{ $appointment->patient->user->name }}</p>
-                                            <p class="text-sm text-gray-600">
-                                                with Dr. {{ $appointment->schedule->doctor->user->name }}
-                                                • {{ $appointment->schedule->formatted_date }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="flex items-center space-x-3">
-                                    <span class="badge {{ $appointment->status_badge_class }} badge-sm">
-                                        {{ ucfirst($appointment->status) }}
-                                    </span>
-                                    <a href="{{ route('admin.appointments.show', $appointment) }}"
-                                        class="text-purple-600 hover:text-purple-700 font-medium text-sm">
-                                        View
-                                    </a>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-center py-8 text-gray-500">No appointments yet</p>
-                @endif
-            </div>
-
         </div>
 
-        @push('scripts')
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
+        {{-- Recent Appointments --}}
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center">
+                    <svg class="h-5 w-5 text-purple-600 mr-2" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Recent Appointments
+                </h3>
+                <a href="{{ route('admin.appointments.index') }}"
+                    class="text-sm font-medium text-purple-600 hover:text-purple-700">
+                    View All →
+                </a>
+            </div>
 
-                    // Appointment Status Pie Chart
-                    const statusCtx = document.getElementById('statusChart');
-                    if (statusCtx) {
-                        new Chart(statusCtx, {
-                            type: 'doughnut',
-                            data: {
-                                labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'No Show'],
-                                datasets: [{
-                                    data: [
-                                        {{ $appointmentsByStatus['pending'] }},
-                                        {{ $appointmentsByStatus['confirmed'] }},
-                                        {{ $appointmentsByStatus['completed'] }},
-                                        {{ $appointmentsByStatus['cancelled'] }},
-                                        {{ $appointmentsByStatus['no_show'] }}
-                                    ],
-                                    backgroundColor: [
-                                        'rgb(250, 204, 21)',
-                                        'rgb(59, 130, 246)',
-                                        'rgb(34, 197, 94)',
-                                        'rgb(239, 68, 68)',
-                                        'rgb(156, 163, 175)'
-                                    ],
+            @if ($recentAppointments->count() > 0)
+                <div class="space-y-3">
+                    @foreach ($recentAppointments as $appointment)
+                        <div
+                            class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition duration-150">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3">
+                                    <div
+                                        class="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full flex items-center justify-center">
+                                        <span class="text-sm font-bold text-purple-600">
+                                            {{ substr($appointment->patient->user->name, 0, 1) }}
+                                        </span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-semibold text-gray-900">
+                                            {{ $appointment->patient->user->name }}</p>
+                                        <p class="text-sm text-gray-600">
+                                            with Dr. {{ $appointment->schedule->doctor->user->name }}
+                                            • {{ $appointment->schedule->formatted_date }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="badge {{ $appointment->status_badge_class }} badge-sm">
+                                    {{ ucfirst($appointment->status) }}
+                                </span>
+                                <a href="{{ route('admin.appointments.show', $appointment) }}"
+                                    class="text-purple-600 hover:text-purple-700 font-medium text-sm">
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-center py-8 text-gray-500">No appointments yet</p>
+            @endif
+        </div>
+
+    </div>
+
+    {{-- Chart.js Script --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        // Wait for DOM and Chart.js to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure everything is ready
+            setTimeout(function() {
+
+                // Appointment Status Doughnut Chart
+                const statusCtx = document.getElementById('statusChart');
+                if (statusCtx) {
+                    new Chart(statusCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'No Show'],
+                            datasets: [{
+                                data: [
+                                    {{ $appointmentsByStatus['pending'] ?? 0 }},
+                                    {{ $appointmentsByStatus['confirmed'] ?? 0 }},
+                                    {{ $appointmentsByStatus['completed'] ?? 0 }},
+                                    {{ $appointmentsByStatus['cancelled'] ?? 0 }},
+                                    {{ $appointmentsByStatus['no_show'] ?? 0 }}
+                                ],
+                                backgroundColor: [
+                                    'rgb(250, 204, 21)',
+                                    'rgb(59, 130, 246)',
+                                    'rgb(34, 197, 94)',
+                                    'rgb(239, 68, 68)',
+                                    'rgb(156, 163, 175)'
+                                ],
+                                borderWidth: 3,
+                                borderColor: '#fff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 15,
+                                        font: {
+                                            size: 12,
+                                            family: "'Inter', sans-serif"
+                                        },
+                                        usePointStyle: true,
+                                        pointStyle: 'circle'
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    padding: 12,
+                                    titleFont: {
+                                        size: 14
+                                    },
+                                    bodyFont: {
+                                        size: 13
+                                    },
+                                    cornerRadius: 8
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Monthly Trends Line Chart
+                const trendsCtx = document.getElementById('trendsChart');
+                if (trendsCtx) {
+                    new Chart(trendsCtx, {
+                        type: 'line',
+                        data: {
+                            labels: @json($monthlyTrends['labels'] ?? []),
+                            datasets: [{
+                                    label: 'Completed',
+                                    data: @json($monthlyTrends['completed'] ?? []),
+                                    borderColor: 'rgb(34, 197, 94)',
+                                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                    tension: 0.4,
+                                    fill: true,
+                                    borderWidth: 3,
+                                    pointRadius: 5,
+                                    pointHoverRadius: 7,
+                                    pointBackgroundColor: 'rgb(34, 197, 94)',
+                                    pointBorderColor: '#fff',
+                                    pointBorderWidth: 2
+                                },
+                                {
+                                    label: 'Cancelled',
+                                    data: @json($monthlyTrends['cancelled'] ?? []),
+                                    borderColor: 'rgb(239, 68, 68)',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                    tension: 0.4,
+                                    fill: true,
+                                    borderWidth: 3,
+                                    pointRadius: 5,
+                                    pointHoverRadius: 7,
+                                    pointBackgroundColor: 'rgb(239, 68, 68)',
+                                    pointBorderColor: '#fff',
+                                    pointBorderWidth: 2
+                                },
+                                {
+                                    label: 'Pending',
+                                    data: @json($monthlyTrends['pending'] ?? []),
+                                    borderColor: 'rgb(250, 204, 21)',
+                                    backgroundColor: 'rgba(250, 204, 21, 0.1)',
+                                    tension: 0.4,
+                                    fill: true,
+                                    borderWidth: 3,
+                                    pointRadius: 5,
+                                    pointHoverRadius: 7,
+                                    pointBackgroundColor: 'rgb(250, 204, 21)',
+                                    pointBorderColor: '#fff',
+                                    pointBorderWidth: 2
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        font: {
+                                            size: 12,
+                                            family: "'Inter', sans-serif"
+                                        },
+                                        usePointStyle: true,
+                                        padding: 15
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    padding: 12,
+                                    cornerRadius: 8
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1,
+                                        font: {
+                                            size: 11
+                                        }
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 11
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Registration Trends Bar Chart
+                const regCtx = document.getElementById('registrationChart');
+                if (regCtx) {
+                    new Chart(regCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: @json($registrationTrends['labels'] ?? []),
+                            datasets: [{
+                                    label: 'Patients',
+                                    data: @json($registrationTrends['patients'] ?? []),
+                                    backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                                    borderColor: 'rgb(34, 197, 94)',
                                     borderWidth: 2,
-                                    borderColor: '#fff'
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: {
-                                        position: 'bottom',
-                                        labels: {
-                                            padding: 15,
-                                            font: {
-                                                size: 12
-                                            }
-                                        }
-                                    }
+                                    borderRadius: 6,
+                                    borderSkipped: false
+                                },
+                                {
+                                    label: 'Doctors',
+                                    data: @json($registrationTrends['doctors'] ?? []),
+                                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                                    borderColor: 'rgb(59, 130, 246)',
+                                    borderWidth: 2,
+                                    borderRadius: 6,
+                                    borderSkipped: false
                                 }
-                            }
-                        });
-                    }
-
-                    // Monthly Trends Line Chart
-                    const trendsCtx = document.getElementById('trendsChart');
-                    if (trendsCtx) {
-                        new Chart(trendsCtx, {
-                            type: 'line',
-                            data: {
-                                labels: @json($monthlyTrends['labels']),
-                                datasets: [{
-                                        label: 'Completed',
-                                        data: @json($monthlyTrends['completed']),
-                                        borderColor: 'rgb(34, 197, 94)',
-                                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                                        tension: 0.4,
-                                        fill: true
-                                    },
-                                    {
-                                        label: 'Cancelled',
-                                        data: @json($monthlyTrends['cancelled']),
-                                        borderColor: 'rgb(239, 68, 68)',
-                                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                                        tension: 0.4,
-                                        fill: true
-                                    },
-                                    {
-                                        label: 'Pending',
-                                        data: @json($monthlyTrends['pending']),
-                                        borderColor: 'rgb(250, 204, 21)',
-                                        backgroundColor: 'rgba(250, 204, 21, 0.1)',
-                                        tension: 0.4,
-                                        fill: true
-                                    }
-                                ]
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false
                             },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: {
-                                        position: 'top'
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        font: {
+                                            size: 12,
+                                            family: "'Inter', sans-serif"
+                                        },
+                                        usePointStyle: true,
+                                        padding: 15
                                     }
                                 },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: {
-                                            stepSize: 1
-                                        }
-                                    }
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    padding: 12,
+                                    cornerRadius: 8
                                 }
-                            }
-                        });
-                    }
-
-                    // Registration Trends Chart
-                    const regCtx = document.getElementById('registrationChart');
-                    if (regCtx) {
-                        new Chart(regCtx, {
-                            type: 'bar',
-                            data: {
-                                labels: @json($registrationTrends['labels']),
-                                datasets: [{
-                                        label: 'Patients',
-                                        data: @json($registrationTrends['patients']),
-                                        backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                                        borderColor: 'rgb(34, 197, 94)',
-                                        borderWidth: 2
-                                    },
-                                    {
-                                        label: 'Doctors',
-                                        data: @json($registrationTrends['doctors']),
-                                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                                        borderColor: 'rgb(59, 130, 246)',
-                                        borderWidth: 2
-                                    }
-                                ]
                             },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: {
-                                        position: 'top'
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1,
+                                        font: {
+                                            size: 11
+                                        }
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
                                     }
                                 },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: {
-                                            stepSize: 1
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 11
                                         }
                                     }
                                 }
                             }
-                        });
-                    }
+                        }
+                    });
+                }
 
-                });
-            </script>
-        @endpush
+            }, 100); // Small delay to ensure everything is ready
+        });
+    </script>
 </x-layouts.admin>

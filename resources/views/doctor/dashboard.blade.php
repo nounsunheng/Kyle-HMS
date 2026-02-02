@@ -7,52 +7,57 @@
     <div class="space-y-6" x-data="{ showWelcome: true }">
 
         {{-- Welcome Banner --}}
-        <div class="bg-gradient-to-r from-green-600 via-green-700 to-teal-700 rounded-2xl shadow-xl overflow-hidden">
+        {{-- Welcome Header with Real-Time Clock --}}
+        <div class="bg-gradient-to-r from-secondary-600 via-secondary-700 to-blue-700 rounded-2xl shadow-xl overflow-hidden">
             <div class="px-8 py-10 relative">
                 {{-- Decorative Elements --}}
                 <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-0 left-0 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
 
                 <div class="relative z-10">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div class="mb-6 md:mb-0">
                             <h1 class="text-4xl font-bold text-white mb-3">
-                                Welcome back, Dr. {{ Auth::user()->name }}! 👨‍⚕️
+                                Welcome back, Dr. {{ Auth::user()->name }}!
                             </h1>
-                            <p class="text-green-100 text-lg">
-                                {{ Auth::user()->doctor->specialty->name }} Specialist
+                            <p class="text-blue-100 text-lg">
+                                Here's your practice overview for today
                             </p>
 
-                            {{-- Quick Stats Pills --}}
+                            {{-- Real-Time Date and Time Display --}}
                             <div class="mt-6 flex flex-wrap gap-3">
                                 <div class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
                                     <span class="text-white text-sm font-medium">
-                                        License: {{ Auth::user()->doctor->license_number }}
+                                        Doctor
                                     </span>
                                 </div>
-                                <div class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
-                                    <span class="text-white text-sm font-medium">
-                                        Experience: {{ Auth::user()->doctor->years_of_experience }} years
-                                    </span>
+                                <div class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30"
+                                     x-data="{
+                                        date: '',
+                                        time: '',
+                                        updateDateTime() {
+                                            const now = new Date();
+                                            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                                            this.date = now.toLocaleDateString('en-US', options);
+                                            this.time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                                        }
+                                     }"
+                                     x-init="updateDateTime(); setInterval(() => updateDateTime(), 1000)">
+                                    <span class="text-white text-sm font-medium" x-text="date + ' ' + time"></span>
                                 </div>
-                                <div
-                                    class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center">
-                                    <span
-                                        class="inline-block w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                                <div class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 flex items-center">
+                                    <span class="inline-block w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
                                     <span class="text-white text-sm font-medium">
-                                        {{ Auth::user()->doctor->is_available ? 'Available' : 'Unavailable' }}
+                                        Active
                                     </span>
                                 </div>
                             </div>
                         </div>
 
                         {{-- Profile Avatar --}}
-                        <div class="flex-shrink-0">
-                            <div
-                                class="w-32 h-32 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border-4 border-white/30 shadow-2xl overflow-hidden">
-                                <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}"
-                                    class="w-full h-full object-cover">
-                            </div>
+                        <div class="w-32 h-32 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border-4 border-white/30 shadow-2xl overflow-hidden">
+                            <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}"
+                                class="w-full h-full object-cover">
                         </div>
                     </div>
                 </div>
@@ -178,7 +183,14 @@
                         </svg>
                         Today's Schedule
                     </h3>
-                    <p class="text-sm text-gray-500 mt-1">{{ now()->format('l, F d, Y') }}</p>
+                    <p class="text-sm text-gray-500 mt-1" x-data="{
+                        currentDate: '',
+                        updateDate() {
+                            const now = new Date();
+                            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                            this.currentDate = now.toLocaleDateString('en-US', options);
+                        }
+                    }" x-init="updateDate(); setInterval(() => updateDate(), 1000)" x-text="currentDate"></p>
                 </div>
                 <a href="{{ route('doctor.schedule.index') }}"
                     class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition duration-150">
@@ -262,24 +274,40 @@
         </div>
 
         {{-- Appointment Trends Chart --}}
-        @if (isset($appointmentTrends) && count($appointmentTrends['labels']) > 0)
-            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900 flex items-center">
-                            <svg class="h-6 w-6 text-green-600 mr-2" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            Appointment History
-                        </h3>
-                        <p class="text-sm text-gray-500 mt-1">Your appointment trends over the last 6 months</p>
-                    </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                        <svg class="h-6 w-6 text-green-600 mr-2" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Appointment History
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">Your appointment trends over the last 6 months</p>
                 </div>
-                <canvas id="appointmentTrendsChart" height="80"></canvas>
             </div>
 
+            @if (isset($appointmentTrends) && count($appointmentTrends['labels']) > 0)
+                <canvas id="appointmentTrendsChart" height="80"></canvas>
+            @else
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">No Appointment History Yet</h3>
+                    <p class="mt-2 text-sm text-gray-500">Your appointment trends will appear here once you have appointments.</p>
+                    <a href="{{ route('doctor.schedule.create') }}"
+                        class="mt-4 inline-block px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md transition duration-150">
+                        Create Your First Schedule
+                    </a>
+                </div>
+            @endif
+        </div>
+
+        @if (isset($appointmentTrends) && count($appointmentTrends['labels']) > 0)
             @push('scripts')
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
