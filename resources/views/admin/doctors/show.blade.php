@@ -12,12 +12,11 @@
         <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-start justify-between mb-6">
                 <div class="flex items-center">
-                    <div
-                        class="h-20 w-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
-                        <svg class="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
+                    <!-- Doctor Profile Picture -->
+                    <div class="h-20 w-20 rounded-full overflow-hidden flex-shrink-0 ring-4 ring-green-100 shadow-lg">
+                        <img src="{{ $doctor->profile_image_url }}"
+                             alt="Dr. {{ $doctor->user->name }}"
+                             class="h-full w-full object-cover">
                     </div>
                     <div class="ml-6">
                         <h1 class="text-3xl font-bold text-gray-900">Dr. {{ $doctor->user->name }}</h1>
@@ -93,7 +92,7 @@
                     <h3 class="text-sm font-medium text-gray-500 mb-2">Bio</h3>
                     <p class="text-gray-900">{{ $doctor->bio }}</p>
                 </div>
-            @endif>
+            @endif
         </div>
 
         <!-- Recent Schedules -->
@@ -129,10 +128,18 @@
                 <div class="space-y-3">
                     @foreach ($doctor->appointments->take(5) as $appointment)
                         <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                            <div>
-                                <p class="font-semibold text-gray-900">{{ $appointment->patient->user->name }}</p>
-                                <p class="text-sm text-gray-600">{{ $appointment->schedule->formatted_date }} at
-                                    {{ $appointment->formatted_time }}</p>
+                            <div class="flex items-center space-x-4">
+                                <!-- Patient Profile Picture in Appointment -->
+                                <div class="h-10 w-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-blue-100">
+                                    <img src="{{ $appointment->patient->profile_image_url }}"
+                                         alt="{{ $appointment->patient->user->name }}"
+                                         class="h-full w-full object-cover">
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-900">{{ $appointment->patient->user->name }}</p>
+                                    <p class="text-sm text-gray-600">{{ $appointment->schedule->formatted_date }} at
+                                        {{ $appointment->formatted_time }}</p>
+                                </div>
                             </div>
                             <span class="badge {{ $appointment->status_badge_class }} badge-sm">
                                 {{ ucfirst($appointment->status) }}
