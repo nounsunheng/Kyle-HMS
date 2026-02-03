@@ -9,6 +9,8 @@ use App\Models\Specialty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Laravel\Facades\Image;
 
 class DoctorController extends Controller
 {
@@ -181,6 +183,82 @@ class DoctorController extends Controller
     }
 
     /**
+     * Update doctor's profile picture (Admin)
+     */
+    public function updateAvatar(Request $request, Doctor $doctor)
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'], // 5MB max
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Delete old avatar if exists
+            if ($doctor->profile_image && Storage::disk('public')->exists($doctor->profile_image)) {
+                Storage::disk('public')->delete($doctor->profile_image);
+            }
+
+            // Process and store new avatar
+            $image = $request->file('avatar');
+            $timestamp = time();
+            $filename = "avatars/doctor_{$doctor->id}_{$timestamp}.jpg";
+
+            // Ensure avatars directory exists
+            if (!Storage::disk('public')->exists('avatars')) {
+                Storage::disk('public')->makeDirectory('avatars');
+            }
+
+            // Create optimized image
+            $img = Image::read($image);
+            $img->cover(500, 500); // Resize and crop to square
+            $encodedImage = $img->toJpeg(85); // 85% quality
+
+            // Store image
+            Storage::disk('public')->put($filename, $encodedImage);
+
+            // Update database
+            $doctor->update(['profile_image' => $filename]);
+
+            DB::commit();
+
+            return redirect()->route('admin.doctors.edit', $doctor)
+                ->with('success', 'Profile picture updated successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to update profile picture: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete doctor's profile picture (Admin)
+     */
+    public function deleteAvatar(Doctor $doctor)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Delete avatar file
+            if ($doctor->profile_image && Storage::disk('public')->exists($doctor->profile_image)) {
+                Storage::disk('public')->delete($doctor->profile_image);
+            }
+
+            // Update database
+            $doctor->update(['profile_image' => null]);
+
+            DB::commit();
+
+            return redirect()->route('admin.doctors.edit', $doctor)
+                ->with('success', 'Profile picture removed successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to remove profile picture.');
+        }
+    }
+
+    /**
      * Remove the specified doctor
      */
     public function destroy(Doctor $doctor)
@@ -188,6 +266,11 @@ class DoctorController extends Controller
         DB::beginTransaction();
 
         try {
+            // Delete avatar if exists
+            if ($doctor->profile_image && Storage::disk('public')->exists($doctor->profile_image)) {
+                Storage::disk('public')->delete($doctor->profile_image);
+            }
+
             // Delete doctor and associated user
             $user = $doctor->user;
             $doctor->delete();
