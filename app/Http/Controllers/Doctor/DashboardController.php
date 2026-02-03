@@ -8,7 +8,6 @@ use App\Models\Schedule;
 use App\Models\MedicalRecord;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -17,34 +16,77 @@ class DashboardController extends Controller
     {
         $doctor = Auth::user()->doctor;
 
-        // Cache dashboard data for 5 minutes to improve performance
-        $cacheKey = "doctor_dashboard_{$doctor->id}";
+        // Clear any cache
+        \Cache::forget("doctor_dashboard_{$doctor->id}");
 
-        $dashboardData = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($doctor) {
-            return $this->getDashboardData($doctor);
-        });
+        // Get fresh data - NO CACHING
+        $dashboardData = $this->getDashboardData($doctor);
 
-        return view('doctor.dashboard', $dashboardData);
+        // Disable browser cache
+        return response()
+            ->view('doctor.dashboard', $dashboardData)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     private function getDashboardData($doctor)
     {
+        // Get current date/time - USE SERVER TIME
+        $now = Carbon::now();
+        $today = $now->toDateString(); // YYYY-MM-DD format
+
+        \Log::info('Dashboard Loading', [
+            'doctor_id' => $doctor->id,
+            'server_time' => $now->toDateTimeString(),
+            'today_date' => $today,
+        ]);
+
         // ===== STATISTICS =====
         $stats = [
-            'today_appointments' => $this->getTodayAppointmentsCount($doctor),
+            'today_appointments' => $this->getTodayAppointmentsCount($doctor, $today),
             'total_patients' => $this->getTotalPatientsCount($doctor),
-            'upcoming_sessions' => $this->getUpcomingSessionsCount($doctor),
+            'upcoming_sessions' => $this->getUpcomingSessionsCount($doctor, $today),
             'completed_appointments' => $this->getCompletedAppointmentsCount($doctor),
             'this_week_appointments' => $this->getThisWeekAppointmentsCount($doctor),
             'total_medical_records' => $doctor->medicalRecords()->count(),
         ];
 
         // ===== TODAY'S SCHEDULE =====
+        // Get ALL schedules for today first to see what we have
+        $allTodaySchedules = Schedule::where('doctor_id', $doctor->id)
+            ->where('schedule_date', $today)
+            ->get();
+
+        \Log::info('All Today Schedules', [
+            'count' => $allTodaySchedules->count(),
+            'schedules' => $allTodaySchedules->map(function($s) {
+                return [
+                    'id' => $s->id,
+                    'date' => $s->schedule_date,
+                    'time' => $s->start_time . ' - ' . $s->end_time,
+                    'status' => $s->status,
+                ];
+            })->toArray()
+        ]);
+
+        // Get today's ACTIVE schedule
         $todaySchedule = Schedule::with(['appointments.patient.user'])
             ->where('doctor_id', $doctor->id)
-            ->where('schedule_date', now()->toDateString())
+            ->where('schedule_date', $today)
             ->where('status', 'active')
+            ->orderBy('start_time', 'asc')
             ->first();
+
+        \Log::info('Today Schedule Result', [
+            'found' => $todaySchedule ? 'YES' : 'NO',
+            'schedule' => $todaySchedule ? [
+                'id' => $todaySchedule->id,
+                'date' => $todaySchedule->schedule_date->format('Y-m-d'),
+                'time' => $todaySchedule->start_time . ' - ' . $todaySchedule->end_time,
+                'status' => $todaySchedule->status,
+            ] : null
+        ]);
 
         // ===== RECENT APPOINTMENTS =====
         $recentAppointments = Appointment::with(['patient.user', 'schedule'])
@@ -55,7 +97,7 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
 
-        // ===== APPOINTMENT TRENDS (Last 6 months) =====
+        // ===== APPOINTMENT TRENDS =====
         $appointmentTrends = $this->getAppointmentTrends($doctor);
 
         // ===== UPCOMING THIS WEEK =====
@@ -74,11 +116,11 @@ class DashboardController extends Controller
         );
     }
 
-    private function getTodayAppointmentsCount($doctor)
+    private function getTodayAppointmentsCount($doctor, $today)
     {
-        return Appointment::whereHas('schedule', function ($query) use ($doctor) {
+        return Appointment::whereHas('schedule', function ($query) use ($doctor, $today) {
             $query->where('doctor_id', $doctor->id)
-                  ->where('schedule_date', now()->toDateString());
+                  ->where('schedule_date', $today);
         })
         ->whereIn('appointments.status', ['pending', 'confirmed'])
         ->count();
@@ -93,11 +135,11 @@ class DashboardController extends Controller
         ->count('patient_id');
     }
 
-    private function getUpcomingSessionsCount($doctor)
+    private function getUpcomingSessionsCount($doctor, $today)
     {
         return Schedule::where('doctor_id', $doctor->id)
-            ->where('schedule_date', '>=', now()->toDateString())
             ->where('status', 'active')
+            ->where('schedule_date', '>=', $today)
             ->count();
     }
 
@@ -112,8 +154,8 @@ class DashboardController extends Controller
 
     private function getThisWeekAppointmentsCount($doctor)
     {
-        $weekStart = now()->startOfWeek();
-        $weekEnd = now()->endOfWeek();
+        $weekStart = Carbon::now()->startOfWeek();
+        $weekEnd = Carbon::now()->endOfWeek();
 
         return Appointment::whereHas('schedule', function ($query) use ($doctor, $weekStart, $weekEnd) {
             $query->where('doctor_id', $doctor->id)
@@ -123,7 +165,7 @@ class DashboardController extends Controller
 
     private function getAppointmentTrends($doctor)
     {
-        $sixMonthsAgo = now()->subMonths(6)->startOfMonth();
+        $sixMonthsAgo = Carbon::now()->subMonths(6)->startOfMonth();
 
         $trends = Appointment::whereHas('schedule', function ($query) use ($doctor, $sixMonthsAgo) {
             $query->where('doctor_id', $doctor->id)
@@ -143,20 +185,22 @@ class DashboardController extends Controller
         $cancelled = [];
         $pending = [];
 
+        // Always generate 6 months of data
         for ($i = 5; $i >= 0; $i--) {
-            $month = now()->subMonths($i)->format('Y-m');
-            $monthName = now()->subMonths($i)->format('M Y');
+            $month = Carbon::now()->subMonths($i)->format('Y-m');
+            $monthName = Carbon::now()->subMonths($i)->format('M Y');
             $months[] = $monthName;
 
             $completedCount = $trends->where('month', $month)->where('status', 'completed')->sum('count');
             $cancelledCount = $trends->where('month', $month)->where('status', 'cancelled')->sum('count');
             $pendingCount = $trends->where('month', $month)->whereIn('status', ['pending', 'confirmed'])->sum('count');
 
-            $completed[] = $completedCount;
-            $cancelled[] = $cancelledCount;
-            $pending[] = $pendingCount;
+            $completed[] = (int) $completedCount;
+            $cancelled[] = (int) $cancelledCount;
+            $pending[] = (int) $pendingCount;
         }
 
+        // Always return data structure (even if all zeros)
         return [
             'labels' => $months,
             'completed' => $completed,
@@ -167,8 +211,8 @@ class DashboardController extends Controller
 
     private function getUpcomingWeekAppointments($doctor)
     {
-        $today = now()->toDateString();
-        $nextWeek = now()->addDays(7)->toDateString();
+        $today = Carbon::now()->toDateString();
+        $nextWeek = Carbon::now()->addDays(7)->toDateString();
 
         return Appointment::with(['patient.user', 'schedule'])
             ->whereHas('schedule', function ($query) use ($doctor, $today, $nextWeek) {
