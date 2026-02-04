@@ -10,6 +10,41 @@ export default {
         './resources/views/**/*.blade.php',
     ],
 
+    // CRITICAL: Safelist ensures dynamic status badge classes are never purged
+    safelist: [
+        // Status badge background colors
+        'bg-yellow-100',
+        'bg-blue-100',
+        'bg-green-100',
+        'bg-red-100',
+        'bg-gray-100',
+        'bg-gray-900',
+        'bg-orange-100',
+
+        // Status badge text colors
+        'text-yellow-800',
+        'text-blue-800',
+        'text-green-800',
+        'text-red-800',
+        'text-gray-800',
+        'text-white',
+        'text-orange-800',
+
+        // Status badge border colors
+        'border-yellow-300',
+        'border-blue-300',
+        'border-green-300',
+        'border-red-300',
+        'border-gray-300',
+        'border-gray-900',
+        'border-orange-300',
+
+        // Utility classes
+        'inline-flex',
+        'items-center',
+        'rounded-full',
+    ],
+
     theme: {
         extend: {
             fontFamily: {
@@ -49,7 +84,7 @@ export default {
 
     plugins: [
         forms,
-        daisyui, // Use the imported variable here
+        daisyui,
     ],
 
     daisyui: {
