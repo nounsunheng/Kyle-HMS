@@ -25,13 +25,11 @@
                         class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-blue-500 focus:ring-blue-500">
                         <option value="">All Statuses</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed
-                        </option>
-                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed
-                        </option>
-                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled
-                        </option>
+                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         <option value="no_show" {{ request('status') == 'no_show' ? 'selected' : '' }}>No Show</option>
+                        <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
                     </select>
                 </div>
 
@@ -107,13 +105,7 @@
                                     <div class="text-sm text-gray-500">{{ $appointment->formatted_time }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                        @if ($appointment->status === 'pending') bg-yellow-100 text-yellow-800
-                                        @elseif($appointment->status === 'confirmed') bg-blue-100 text-blue-800
-                                        @elseif($appointment->status === 'completed') bg-green-100 text-green-800
-                                        @elseif($appointment->status === 'cancelled') bg-red-100 text-red-800
-                                        @else bg-gray-100 text-gray-800 @endif">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $appointment->status_badge_class }}">
                                         {{ ucfirst($appointment->status) }}
                                     </span>
                                 </td>

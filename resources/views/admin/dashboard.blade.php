@@ -464,7 +464,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-3">
-                                <span class="badge {{ $appointment->status_badge_class }} badge-sm">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $appointment->status_badge_class }}">
                                     {{ ucfirst($appointment->status) }}
                                 </span>
                                 <a href="{{ route('admin.appointments.show', $appointment) }}"
@@ -497,21 +497,23 @@
                     new Chart(statusCtx, {
                         type: 'doughnut',
                         data: {
-                            labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'No Show'],
+                            labels: ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'No Show', 'Expired'],
                             datasets: [{
                                 data: [
                                     {{ $appointmentsByStatus['pending'] ?? 0 }},
                                     {{ $appointmentsByStatus['confirmed'] ?? 0 }},
                                     {{ $appointmentsByStatus['completed'] ?? 0 }},
                                     {{ $appointmentsByStatus['cancelled'] ?? 0 }},
-                                    {{ $appointmentsByStatus['no_show'] ?? 0 }}
+                                    {{ $appointmentsByStatus['no_show'] ?? 0 }},
+                                    {{ $appointmentsByStatus['expired'] ?? 0 }}
                                 ],
                                 backgroundColor: [
-                                    'rgb(250, 204, 21)',
-                                    'rgb(59, 130, 246)',
-                                    'rgb(34, 197, 94)',
-                                    'rgb(239, 68, 68)',
-                                    'rgb(156, 163, 175)'
+                                    'rgb(250, 204, 21)',      // Yellow - Pending
+                                    'rgb(59, 130, 246)',      // Blue - Confirmed
+                                    'rgb(34, 197, 94)',       // Green - Completed
+                                    'rgb(239, 68, 68)',       // Red - Cancelled
+                                    'rgb(17, 24, 39)',        // Black - No Show
+                                    'rgb(249, 115, 22)'       // Orange - Expired
                                 ],
                                 borderWidth: 3,
                                 borderColor: '#fff'

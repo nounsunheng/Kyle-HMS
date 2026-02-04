@@ -37,13 +37,21 @@ class DashboardController extends Controller
             ->get();
 
         // ===== APPOINTMENT STATUS BREAKDOWN =====
-        $appointmentsByStatus = [
-            'pending' => Appointment::where('status', 'pending')->count(),
-            'confirmed' => Appointment::where('status', 'confirmed')->count(),
-            'completed' => Appointment::where('status', 'completed')->count(),
-            'cancelled' => Appointment::where('status', 'cancelled')->count(),
-            'no_show' => Appointment::where('status', 'no_show')->count(),
-        ];
+        // Optimized: Single query instead of 6 separate queries
+        $appointmentsByStatus = Appointment::selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        // Ensure all statuses have a value (even if 0)
+        $appointmentsByStatus = array_merge([
+            'pending' => 0,
+            'confirmed' => 0,
+            'completed' => 0,
+            'cancelled' => 0,
+            'no_show' => 0,
+            'expired' => 0,
+        ], $appointmentsByStatus);
 
         // ===== DOCTORS BY SPECIALTY =====
         $doctorsBySpecialty = Specialty::withCount('doctors')

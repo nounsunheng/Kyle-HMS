@@ -77,7 +77,7 @@
         <!-- Appointment Status Breakdown -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Appointment Status Breakdown</h2>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div class="text-center p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200">
                     <p class="text-3xl font-bold text-yellow-600">{{ \App\Models\Appointment::where('status', 'pending')->count() }}</p>
                     <p class="text-sm text-gray-600 mt-1 font-medium">Pending</p>
@@ -94,9 +94,13 @@
                     <p class="text-3xl font-bold text-red-600">{{ \App\Models\Appointment::where('status', 'cancelled')->count() }}</p>
                     <p class="text-sm text-gray-600 mt-1 font-medium">Cancelled</p>
                 </div>
-                <div class="text-center p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
-                    <p class="text-3xl font-bold text-gray-600">{{ \App\Models\Appointment::where('status', 'no_show')->count() }}</p>
+                <div class="text-center p-4 bg-gray-50 rounded-lg border-2 border-gray-300">
+                    <p class="text-3xl font-bold text-gray-900">{{ \App\Models\Appointment::where('status', 'no_show')->count() }}</p>
                     <p class="text-sm text-gray-600 mt-1 font-medium">No Show</p>
+                </div>
+                <div class="text-center p-4 bg-orange-50 rounded-lg border-2 border-orange-200">
+                    <p class="text-3xl font-bold text-orange-600">{{ \App\Models\Appointment::where('status', 'expired')->count() }}</p>
+                    <p class="text-sm text-gray-600 mt-1 font-medium">Expired</p>
                 </div>
             </div>
         </div>
@@ -156,13 +160,7 @@
                                         {{ $appointment->schedule->schedule_date->format('M d, Y') }}
                                     </p>
                                 </div>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                    @if($appointment->status === 'pending') bg-yellow-100 text-yellow-800
-                                    @elseif($appointment->status === 'confirmed') bg-blue-100 text-blue-800
-                                    @elseif($appointment->status === 'completed') bg-green-100 text-green-800
-                                    @elseif($appointment->status === 'cancelled') bg-red-100 text-red-800
-                                    @else bg-gray-100 text-gray-800
-                                    @endif">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $appointment->status_badge_class }}">
                                     {{ ucfirst($appointment->status) }}
                                 </span>
                             </div>

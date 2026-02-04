@@ -16,7 +16,7 @@
                     <h1 class="text-3xl font-bold text-gray-900">Appointment Details</h1>
                     <p class="mt-1 text-sm text-gray-600">{{ $appointment->appointment_number }}</p>
                 </div>
-                <span class="badge {{ $appointment->status_badge_class }}">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $appointment->status_badge_class }}">
                     {{ ucfirst($appointment->status) }}
                 </span>
             </div>
@@ -222,11 +222,13 @@
 
             <!-- Actions -->
             @if (in_array($appointment->status, ['pending', 'confirmed']))
-                <button type="button"
-                    onclick="openCancelModal('{{ route('admin.appointments.cancel', $appointment) }}', '{{ $appointment->appointment_number }}')"
-                    class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-150">
-                    Cancel Appointment
-                </button>
+                <div class="border-t border-gray-200 pt-6 mt-6">
+                    <button type="button"
+                        onclick="openCancelModal('{{ route('admin.appointments.cancel', $appointment) }}', '{{ $appointment->appointment_number }}')"
+                        class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-150">
+                        Cancel Appointment
+                    </button>
+                </div>
             @endif
         </div>
     </div>
