@@ -55,10 +55,10 @@
                 @foreach($doctors as $doctor)
                     <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition duration-150">
                         <!-- Doctor Image -->
-                        <div class="h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-                            <svg class="h-24 w-24 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
+                        <div class="h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center overflow-hidden">
+                            <img src="{{ $doctor->profile_image_url }}"
+                                 alt="Dr. {{ $doctor->user->name }}"
+                                 class="h-full w-full object-cover">
                         </div>
 
                         <!-- Doctor Info -->

@@ -13,9 +13,16 @@
             <div class="md:flex">
                 <!-- Doctor Image -->
                 <div class="md:w-1/3 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center p-12">
-                    <svg class="h-48 w-48 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                    </svg>
+                    <div class="relative">
+                        <img src="{{ $doctor->profile_image_url }}"
+                             alt="Dr. {{ $doctor->user->name }}"
+                             class="h-64 w-64 rounded-2xl object-cover shadow-2xl ring-4 ring-white">
+
+                        <!-- Availability Badge -->
+                        <span class="absolute top-4 right-4 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $doctor->is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }} shadow-lg">
+                            {{ $doctor->is_available ? 'Available' : 'Unavailable' }}
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Doctor Details -->
@@ -25,9 +32,6 @@
                             <h1 class="text-3xl font-bold text-gray-900">Dr. {{ $doctor->user->name }}</h1>
                             <p class="text-xl text-secondary-600 font-medium mt-1">{{ $doctor->specialty->name }}</p>
                         </div>
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $doctor->is_available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                            {{ $doctor->is_available ? 'Available' : 'Unavailable' }}
-                        </span>
                     </div>
 
                     <div class="space-y-3 mb-6">
