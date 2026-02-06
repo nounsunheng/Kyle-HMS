@@ -94,17 +94,11 @@
                                         class="text-blue-600 hover:text-blue-900 mr-3">View</a>
                                     <a href="{{ route('admin.patients.edit', $patient) }}"
                                         class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                    <form method="POST" action="{{ route('admin.patients.destroy', $patient) }}"
-                                        class="inline"
-                                        onsubmit="return confirm('Are you sure you want to delete this patient? This will also delete all their appointments and medical records.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button"
-                                            onclick="openDeleteModal('{{ route('admin.patients.destroy', $patient) }}', '{{ $patient->user->name }}')"
-                                            class="text-red-600 hover:text-red-900">
-                                            Delete
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                        onclick="openDeleteModal('{{ route('admin.patients.destroy', $patient) }}', '{{ $patient->user->name }}')"
+                                        class="text-red-600 hover:text-red-900">
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -139,9 +133,14 @@
             </div>
         @endif
     </div>
-    <x-delete-modal title="Delete Patient"
-        message="Are you sure you want to delete this patient? This will also delete all their appointments and medical records." />
 
+    <!-- Delete Modal -->
+    <x-delete-modal
+        title="Delete Patient"
+        message="Are you sure you want to delete this patient? This will also delete all their appointments and medical records."
+    />
+
+    <!-- Hidden delete form -->
     <form id="delete-form" method="POST" style="display: none;">
         @csrf
         @method('DELETE')

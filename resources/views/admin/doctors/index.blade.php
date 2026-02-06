@@ -125,17 +125,11 @@
                                         class="text-blue-600 hover:text-blue-900 mr-3">View</a>
                                     <a href="{{ route('admin.doctors.edit', $doctor) }}"
                                         class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                    <form method="POST" action="{{ route('admin.doctors.destroy', $doctor) }}"
-                                        class="inline"
-                                        onsubmit="return confirm('Are you sure you want to delete this doctor?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button"
-                                            onclick="openDeleteModal('{{ route('admin.doctors.destroy', $doctor) }}', 'Dr. {{ $doctor->user->name }}')"
-                                            class="text-red-600 hover:text-red-900">
-                                            Delete
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                        onclick="openDeleteModal('{{ route('admin.doctors.destroy', $doctor) }}', 'Dr. {{ $doctor->user->name }}')"
+                                        class="text-red-600 hover:text-red-900">
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -162,9 +156,12 @@
             </div>
         @endif
     </div>
+
     <!-- Delete Modal -->
-    <x-delete-modal title="Delete Doctor"
-        message="Are you sure you want to delete this doctor? This will also delete all their schedules and may affect appointments." />
+    <x-delete-modal
+        title="Delete Doctor"
+        message="Are you sure you want to delete this doctor? This will also delete all their schedules and may affect appointments."
+    />
 
     <!-- Hidden delete form -->
     <form id="delete-form" method="POST" style="display: none;">
