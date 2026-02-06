@@ -83,6 +83,30 @@ class Patient extends Model
     }
 
     /**
+     * Helper methods for appointment statistics
+     */
+
+    public function getUpcomingAppointmentsAttribute()
+    {
+        return $this->appointments()
+            ->whereHas('schedule', function($query) {
+                $query->where('schedule_date', '>=', now()->toDateString());
+            })
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->count();
+    }
+
+    public function getCompletedAppointmentsAttribute()
+    {
+        return $this->appointments()->where('status', 'completed')->count();
+    }
+
+    public function getExpiredAppointmentsAttribute()
+    {
+        return $this->appointments()->where('status', 'expired')->count();
+    }
+
+    /**
      * Get profile image URL
      */
 

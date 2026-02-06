@@ -23,6 +23,10 @@ class MedicalRecord extends Model
         'treatment',
         'prescription',
         'notes',
+        'file_path',
+        'file_name',
+        'file_type',
+        'file_size',
     ];
 
     /**
@@ -32,6 +36,7 @@ class MedicalRecord extends Model
      */
     protected $casts = [
         'visit_date' => 'date',
+        'file_size' => 'integer',
     ];
 
     /**
@@ -60,6 +65,38 @@ class MedicalRecord extends Model
     public function getFormattedVisitDateAttribute()
     {
         return $this->visit_date->format('F d, Y');
+    }
+
+    public function getFileUrlAttribute()
+    {
+        if ($this->file_path) {
+            return asset('storage/' . $this->file_path);
+        }
+        return null;
+    }
+
+    public function getFormattedFileSizeAttribute()
+    {
+        if (!$this->file_size) {
+            return null;
+        }
+
+        $bytes = $this->file_size;
+
+        if ($bytes >= 1073741824) {
+            return number_format($bytes / 1073741824, 2) . ' GB';
+        } elseif ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 2) . ' KB';
+        } else {
+            return $bytes . ' bytes';
+        }
+    }
+
+    public function getHasFileAttribute()
+    {
+        return !empty($this->file_path);
     }
 
     /**
