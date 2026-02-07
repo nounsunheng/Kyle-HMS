@@ -105,24 +105,17 @@
                             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition duration-150">
                             Edit Schedule
                         </a>
-                        <form method="POST" action="{{ route('doctor.schedule.destroy', $schedule) }}"
-                            onsubmit="return confirm('Are you sure you want to delete this schedule?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
+                        <button type="button"
+                                onclick="openDeleteModal('{{ route('doctor.schedule.destroy', $schedule) }}', '{{ $schedule->formatted_date }}')"
                                 class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-150">
-                                Delete Schedule
-                            </button>
-                        </form>
+                            Delete Schedule
+                        </button>
                     @else
-                        <form method="POST" action="{{ route('doctor.schedule.cancel', $schedule) }}"
-                            onsubmit="return confirm('Are you sure you want to cancel this schedule? All booked appointments will be cancelled.');">
-                            @csrf
-                            <button type="submit"
+                        <button type="button"
+                                onclick="openCancelModal('{{ route('doctor.schedule.cancel', $schedule) }}', '{{ $schedule->formatted_date }}')"
                                 class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-150">
-                                Cancel Schedule
-                            </button>
-                        </form>
+                            Cancel Schedule
+                        </button>
                     @endif
                 </div>
             @endif
@@ -183,8 +176,8 @@
                                     </a>
 
                                     @if (in_array($appointment->status, ['pending', 'confirmed']))
-                                        <button
-                                            onclick="showCancelModal({{ $appointment->id }}, '{{ $appointment->appointment_number }}')"
+                                        <button type="button"
+                                            onclick="openCancelAppointmentModal('{{ route('doctor.appointments.cancel', $appointment) }}', '{{ $appointment->appointment_number }}', '{{ $appointment->patient->user->name }}')"
                                             class="text-red-600 hover:text-red-700 text-sm font-medium text-left">
                                             Cancel
                                         </button>
@@ -208,35 +201,143 @@
         </div>
     </div>
 
-    <!-- Cancel Appointment Modal -->
-    <div id="cancelModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Cancel Appointment</h3>
-                <p class="text-sm text-gray-600 mb-4">
-                    Appointment: <span id="modalAppointmentNumber" class="font-mono font-semibold"></span>
-                </p>
+    <!-- Delete Schedule Modal -->
+    <x-delete-modal
+        title="Delete Schedule"
+        message="Are you sure you want to delete this schedule?"
+    />
 
-                <form id="cancelForm" method="POST" action="">
+    <!-- Cancel Schedule Modal -->
+    <div x-data="cancelScheduleModal()"
+         x-show="isOpen"
+         x-cloak
+         @keydown.escape.window="close()"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         role="dialog"
+         aria-modal="true">
+
+        <div x-show="isOpen"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-gray-900 bg-opacity-75"
+             @click="close()">
+        </div>
+
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div x-show="isOpen"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
+                 class="relative bg-white rounded-lg shadow-xl sm:max-w-lg sm:w-full"
+                 @click.stop>
+
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-orange-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                        </div>
+
+                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">Cancel Schedule</h3>
+                            <div class="mt-2">
+                                <p id="cancel-schedule-message" class="text-sm text-gray-600"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
+                    <button type="button" @click="confirmCancel()"
+                            class="inline-flex w-full justify-center rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 sm:w-auto">
+                        Cancel Schedule
+                    </button>
+                    <button type="button" @click="close()"
+                            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+                        Keep Schedule
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Appointment Modal -->
+    <div x-data="cancelAppointmentModal()"
+         x-show="isOpen"
+         x-cloak
+         @keydown.escape.window="close()"
+         class="fixed inset-0 z-50 overflow-y-auto"
+         role="dialog"
+         aria-modal="true">
+
+        <div x-show="isOpen"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 bg-gray-900 bg-opacity-75"
+             @click="close()">
+        </div>
+
+        <div class="flex min-h-screen items-center justify-center p-4">
+            <div x-show="isOpen"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:scale-95"
+                 class="relative bg-white rounded-lg shadow-xl sm:max-w-lg sm:w-full"
+                 @click.stop>
+
+                <form id="cancel-appointment-form" method="POST">
                     @csrf
 
-                    <div class="mb-4">
-                        <label for="cancellation_reason" class="block text-sm font-medium text-gray-700 mb-2">
-                            Reason for Cancellation *
-                        </label>
-                        <textarea id="cancellation_reason" name="cancellation_reason" required rows="4"
-                            placeholder="Please provide a reason for cancelling this appointment..."
-                            class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-red-500 focus:ring-red-500"></textarea>
+                    <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                </svg>
+                            </div>
+
+                            <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900">Cancel Appointment</h3>
+                                <div class="mt-2">
+                                    <p id="cancel-appointment-message" class="text-sm text-gray-600 mb-4"></p>
+
+                                    <label for="cancellation_reason" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Reason for Cancellation *
+                                    </label>
+                                    <textarea id="cancellation_reason"
+                                              name="cancellation_reason"
+                                              required
+                                              rows="4"
+                                              placeholder="Please provide a reason for cancelling this appointment..."
+                                              class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-red-500 focus:ring-red-500"></textarea>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex items-center justify-end space-x-3">
-                        <button type="button" onclick="closeCancelModal()"
-                            class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-md transition duration-150">
-                            Close
-                        </button>
+                    <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 gap-3">
                         <button type="submit"
-                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition duration-150">
+                                class="inline-flex w-full justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 sm:w-auto">
                             Cancel Appointment
+                        </button>
+                        <button type="button" @click="close()"
+                                class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+                            Close
                         </button>
                     </div>
                 </form>
@@ -244,24 +345,95 @@
         </div>
     </div>
 
+    <!-- Hidden Forms -->
+    <form id="delete-form" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+
+    <form id="cancel-schedule-form" method="POST" style="display: none;">
+        @csrf
+    </form>
+
     <script>
-        function showCancelModal(appointmentId, appointmentNumber) {
-            document.getElementById('cancelModal').classList.remove('hidden');
-            document.getElementById('modalAppointmentNumber').textContent = appointmentNumber;
-            document.getElementById('cancelForm').action = `/doctor/appointments/${appointmentId}/cancel`;
+        function openDeleteModal(url, scheduleName) {
+            document.getElementById('modal-message').textContent =
+                `Are you sure you want to delete the schedule for ${scheduleName}? This action cannot be undone.`;
+            document.getElementById('delete-form').action = url;
+            window.dispatchEvent(new CustomEvent('open-delete-modal'));
+        }
+
+        function openCancelModal(url, scheduleName) {
+            document.getElementById('cancel-schedule-message').textContent =
+                `Are you sure you want to cancel the schedule for ${scheduleName}? All booked appointments will be cancelled.`;
+            document.getElementById('cancel-schedule-form').action = url;
+            window.dispatchEvent(new CustomEvent('open-cancel-schedule-modal'));
+        }
+
+        function openCancelAppointmentModal(url, appointmentNumber, patientName) {
+            document.getElementById('cancel-appointment-message').textContent =
+                `Cancel appointment ${appointmentNumber} for ${patientName}?`;
+            document.getElementById('cancel-appointment-form').action = url;
             document.getElementById('cancellation_reason').value = '';
+            window.dispatchEvent(new CustomEvent('open-cancel-appointment-modal'));
         }
 
-        function closeCancelModal() {
-            document.getElementById('cancelModal').classList.add('hidden');
-        }
+        function cancelScheduleModal() {
+            return {
+                isOpen: false,
 
-        // Close modal when clicking outside
-        document.getElementById('cancelModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeCancelModal();
+                init() {
+                    window.addEventListener('open-cancel-schedule-modal', () => {
+                        this.open();
+                    });
+                },
+
+                open() {
+                    this.isOpen = true;
+                    document.body.style.overflow = 'hidden';
+                },
+
+                close() {
+                    this.isOpen = false;
+                    document.body.style.overflow = 'auto';
+                },
+
+                confirmCancel() {
+                    const form = document.getElementById('cancel-schedule-form');
+                    if (form) {
+                        form.submit();
+                    }
+                    this.close();
+                }
             }
-        });
+        }
+
+        function cancelAppointmentModal() {
+            return {
+                isOpen: false,
+
+                init() {
+                    window.addEventListener('open-cancel-appointment-modal', () => {
+                        this.open();
+                    });
+                },
+
+                open() {
+                    this.isOpen = true;
+                    document.body.style.overflow = 'hidden';
+                },
+
+                close() {
+                    this.isOpen = false;
+                    document.body.style.overflow = 'auto';
+                }
+            }
+        }
     </script>
 
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 </x-layouts.doctor>
