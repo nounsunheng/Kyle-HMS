@@ -6,7 +6,6 @@
 
     <div class="space-y-6" x-data="{ showWelcome: true }">
 
-        {{-- Welcome Banner --}}
         {{-- Welcome Header with Real-Time Clock --}}
         <div class="bg-gradient-to-r from-secondary-600 via-secondary-700 to-blue-700 rounded-2xl shadow-xl overflow-hidden">
             <div class="px-8 py-10 relative">
