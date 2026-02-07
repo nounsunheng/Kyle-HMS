@@ -108,7 +108,10 @@ class ScheduleController extends Controller
             }
 
             // Require at least 30 minutes from now to start
-            if ($scheduleStartDateTime->diffInMinutes($now) < 30) {
+            // Calculate minutes from now to start time (must be at least 30)
+            $minutesFromNow = $now->diffInMinutes($scheduleStartDateTime, false);
+
+            if ($minutesFromNow < 30) {
                 return back()->withInput()->with('error', 'Schedule must start at least 30 minutes from now.');
             }
         }
