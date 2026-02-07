@@ -30,8 +30,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
     Route::delete('/profile/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
 
-    // ADD THIS NEW ROUTE FOR PATIENT MEDICAL INFO
+    // Patient info
     Route::patch('/profile/patient-info', [ProfileController::class, 'updatePatientInfo'])->name('profile.patient-info.update');
+
+    // DOCTOR INFO
+    Route::patch('/profile/doctor-info', [ProfileController::class, 'updateDoctorInfo'])->name('profile.doctor-info.update');
 });
 
 /*
@@ -77,12 +80,22 @@ Route::middleware(['auth', 'isDoctor'])->prefix('doctor')->name('doctor.')->grou
     Route::put('/schedule/{schedule}', [App\Http\Controllers\Doctor\ScheduleController::class, 'update'])->name('schedule.update');
     Route::delete('/schedule/{schedule}', [App\Http\Controllers\Doctor\ScheduleController::class, 'destroy'])->name('schedule.destroy');
     Route::post('/schedule/{schedule}/cancel', [App\Http\Controllers\Doctor\ScheduleController::class, 'cancel'])->name('schedule.cancel');
+    Route::resource('schedule', App\Http\Controllers\Doctor\ScheduleController::class);
+    Route::post('schedule/{schedule}/cancel', [App\Http\Controllers\Doctor\ScheduleController::class, 'cancel'])->name('schedule.cancel');
 
     // Appointments
     Route::get('/appointments', [App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('appointments.index');
     Route::get('/appointments/{appointment}', [App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('appointments.show');
     Route::patch('/appointments/{appointment}/status', [App\Http\Controllers\Doctor\AppointmentController::class, 'updateStatus'])->name('appointments.updateStatus');
     Route::post('/appointments/{appointment}/cancel', [App\Http\Controllers\Doctor\AppointmentController::class, 'cancel'])->name('appointments.cancel');
+    Route::get('appointments', [App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('appointments.index');
+    Route::get('appointments/{appointment}', [App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('appointments.show');
+
+    // Appointment Actions
+    Route::post('appointments/{appointment}/confirm', [App\Http\Controllers\Doctor\AppointmentController::class, 'confirm'])->name('appointments.confirm');
+    Route::post('appointments/{appointment}/complete', [App\Http\Controllers\Doctor\AppointmentController::class, 'complete'])->name('appointments.complete');
+    Route::post('appointments/{appointment}/no-show', [App\Http\Controllers\Doctor\AppointmentController::class, 'noShow'])->name('appointments.no-show');
+    Route::post('appointments/{appointment}/cancel', [App\Http\Controllers\Doctor\AppointmentController::class, 'cancel'])->name('appointments.cancel');
 
     // Patients
     Route::get('/patients', [App\Http\Controllers\Doctor\PatientController::class, 'index'])->name('patients.index');
@@ -133,6 +146,14 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     Route::get('/reports/export-appointments', [App\Http\Controllers\Admin\ReportController::class, 'exportAppointments'])->name('reports.export-appointments');
     Route::get('/reports/export-medical-records', [App\Http\Controllers\Admin\ReportController::class, 'exportMedicalRecords'])->name('reports.export-medical-records');
     Route::get('/reports/export-summary', [App\Http\Controllers\Admin\ReportController::class, 'exportSummary'])->name('reports.export-summary');
+
+    // Doctor Avatar Management (Admin)
+    Route::post('/doctors/{doctor}/avatar', [App\Http\Controllers\Admin\DoctorController::class, 'updateAvatar'])->name('doctors.avatar.update');
+    Route::delete('/doctors/{doctor}/avatar', [App\Http\Controllers\Admin\DoctorController::class, 'deleteAvatar'])->name('doctors.avatar.delete');
+
+    // Patient Avatar Management (Admin)
+    Route::post('/patients/{patient}/avatar', [App\Http\Controllers\Admin\PatientController::class, 'updateAvatar'])->name('patients.avatar.update');
+    Route::delete('/patients/{patient}/avatar', [App\Http\Controllers\Admin\PatientController::class, 'deleteAvatar'])->name('patients.avatar.delete');
 });
 
 require __DIR__ . '/auth.php';
