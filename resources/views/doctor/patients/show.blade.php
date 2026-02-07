@@ -12,14 +12,15 @@
         <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-start justify-between mb-6">
                 <div class="flex items-center">
-                    <div class="h-20 w-20 bg-gradient-to-br from-secondary-100 to-secondary-200 rounded-full flex items-center justify-center">
-                        <svg class="h-10 w-10 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
+                    <!-- Patient Profile Picture -->
+                    <div class="h-20 w-20 rounded-full overflow-hidden flex-shrink-0 ring-4 ring-secondary-100 shadow-lg">
+                        <img src="{{ $patient->profile_image_url }}"
+                             alt="{{ $patient->user->name }}"
+                             class="h-full w-full object-cover">
                     </div>
                     <div class="ml-6">
                         <h1 class="text-3xl font-bold text-gray-900">{{ $patient->user->name }}</h1>
-                        <p class="text-lg text-gray-600 mt-1">Patient ID: #{{ $patient->id }}</p>
+                        <p class="text-lg text-gray-600 mt-1">Patient ID: #{{ str_pad($patient->id, 5, '0', STR_PAD_LEFT) }}</p>
                     </div>
                 </div>
             </div>

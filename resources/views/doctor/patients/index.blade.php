@@ -33,53 +33,55 @@
         @if($patients->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($patients as $patient)
-                    <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition duration-150">
-                        <!-- Patient Icon -->
-                        <div class="flex items-center mb-4">
-                            <div class="h-16 w-16 bg-gradient-to-br from-secondary-100 to-secondary-200 rounded-full flex items-center justify-center">
-                                <svg class="h-8 w-8 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                            </div>
-                            <div class="ml-4 flex-1">
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition duration-150">
+                        <!-- Patient Profile Picture -->
+                        <div class="h-48 bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center overflow-hidden">
+                            <img src="{{ $patient->profile_image_url }}"
+                                 alt="{{ $patient->user->name }}"
+                                 class="h-full w-full object-cover">
+                        </div>
+
+                        <div class="p-6">
+                            <!-- Patient Info -->
+                            <div class="mb-4">
                                 <h3 class="text-lg font-bold text-gray-900">{{ $patient->user->name }}</h3>
                                 <p class="text-sm text-gray-600">{{ $patient->age }} years • {{ ucfirst($patient->gender) }}</p>
                             </div>
-                        </div>
 
-                        <!-- Patient Details -->
-                        <div class="space-y-2 mb-4">
-                            <div class="flex items-center text-sm text-gray-600">
-                                <svg class="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                </svg>
-                                {{ $patient->phone }}
-                            </div>
-
-                            @if($patient->blood_type)
+                            <!-- Patient Details -->
+                            <div class="space-y-2 mb-4">
                                 <div class="flex items-center text-sm text-gray-600">
                                     <svg class="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                                     </svg>
-                                    Blood Type: {{ $patient->blood_type }}
+                                    {{ $patient->phone }}
                                 </div>
-                            @endif
 
-                            @if($patient->allergies)
-                                <div class="flex items-start text-sm text-gray-600">
-                                    <svg class="h-4 w-4 mr-2 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                    </svg>
-                                    <span class="text-red-600 font-medium">Allergies: {{ Str::limit($patient->allergies, 30) }}</span>
-                                </div>
-                            @endif
+                                @if($patient->blood_type)
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <svg class="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                                        </svg>
+                                        Blood Type: {{ $patient->blood_type }}
+                                    </div>
+                                @endif
+
+                                @if($patient->allergies)
+                                    <div class="flex items-start text-sm text-gray-600">
+                                        <svg class="h-4 w-4 mr-2 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                        <span class="text-red-600 font-medium">Allergies: {{ Str::limit($patient->allergies, 30) }}</span>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- View Button -->
+                            <a href="{{ route('doctor.patients.show', $patient) }}"
+                               class="block w-full text-center bg-secondary-600 hover:bg-secondary-700 text-white font-semibold py-2 px-4 rounded-md transition duration-150">
+                                View Full Record
+                            </a>
                         </div>
-
-                        <!-- View Button -->
-                        <a href="{{ route('doctor.patients.show', $patient) }}"
-                           class="block w-full text-center bg-secondary-600 hover:bg-secondary-700 text-white font-semibold py-2 px-4 rounded-md transition duration-150">
-                            View Full Record
-                        </a>
                     </div>
                 @endforeach
             </div>
