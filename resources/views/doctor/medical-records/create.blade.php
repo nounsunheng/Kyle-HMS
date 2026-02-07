@@ -40,7 +40,7 @@
         </div>
 
         <!-- Create Form -->
-        <form method="POST" action="{{ route('doctor.medical-records.store', $appointment) }}" class="bg-white rounded-lg shadow-sm p-6">
+        <form method="POST" action="{{ route('doctor.medical-records.store', $appointment) }}" enctype="multipart/form-data" class="bg-white rounded-lg shadow-sm p-6">
             @csrf
 
             <div class="space-y-6">
@@ -105,6 +105,25 @@
                     @enderror
                 </div>
 
+                <!-- Medical Record File Upload -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50">
+                    <label for="medical_record_file" class="block text-sm font-semibold text-gray-700 mb-3">
+                        Medical Record File *
+                        <span class="text-xs font-normal text-gray-500">(PDF, DOC, DOCX, JPG, PNG - Max 10MB)</span>
+                    </label>
+                    <input type="file"
+                        id="medical_record_file"
+                        name="medical_record_file"
+                        required
+                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        onchange="showFileName(this)"
+                        class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-secondary-50 file:text-secondary-700 hover:file:bg-secondary-100">
+                    <p id="file-name" class="mt-2 text-sm text-gray-600 hidden"></p>
+                    @error('medical_record_file')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Action Buttons -->
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                     <a href="{{ route('doctor.appointments.show', $appointment) }}"
@@ -119,4 +138,18 @@
             </div>
         </form>
     </div>
+
+    <script>
+        function showFileName(input) {
+            const fileNameDisplay = document.getElementById('file-name');
+            if (input.files && input.files[0]) {
+                const fileName = input.files[0].name;
+                const fileSize = (input.files[0].size / 1024 / 1024).toFixed(2);
+                fileNameDisplay.textContent = `Selected: ${fileName} (${fileSize} MB)`;
+                fileNameDisplay.classList.remove('hidden');
+            } else {
+                fileNameDisplay.classList.add('hidden');
+            }
+        }
+    </script>
 </x-layouts.doctor>
