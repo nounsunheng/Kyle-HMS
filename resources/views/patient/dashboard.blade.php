@@ -279,8 +279,7 @@
                                     class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm hover:shadow-md transition duration-200 text-center">
                                     View Details
                                 </a>
-                                <span
-                                    class="px-4 py-2 bg-{{ $nextAppointment->status === 'confirmed' ? 'green' : 'yellow' }}-100 text-{{ $nextAppointment->status === 'confirmed' ? 'green' : 'yellow' }}-800 text-sm font-medium rounded-lg text-center">
+                                <span class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold {{ $nextAppointment->status_badge_class }}">
                                     {{ ucfirst($nextAppointment->status) }}
                                 </span>
                             </div>
