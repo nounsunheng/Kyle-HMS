@@ -17,13 +17,11 @@
                         class="w-full rounded-md border-gray-300 shadow-sm text-gray-700 focus:border-secondary-500 focus:ring-secondary-500">
                         <option value="">All Statuses</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed
-                        </option>
-                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed
-                        </option>
-                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled
-                        </option>
+                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         <option value="no_show" {{ request('status') == 'no_show' ? 'selected' : '' }}>No Show</option>
+                        <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
                     </select>
                 </div>
 
@@ -61,7 +59,7 @@
                                     <span class="text-xs font-mono bg-gray-100 text-gray-700 px-2 py-1 rounded">
                                         {{ $appointment->appointment_number }}
                                     </span>
-                                    <span class="ml-2 badge {{ $appointment->status_badge_class }} badge-sm">
+                                    <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $appointment->status_badge_class }}">
                                         {{ ucfirst($appointment->status) }}
                                     </span>
                                 </div>
