@@ -1238,7 +1238,6 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 - 🎓 Software Development Student
 - 📧 Email: nounsunheng290503@gmail.com
 - 🐙 GitHub: [@nounsunheng](https://github.com/nounsunheng)
-- 💼 LinkedIn: [Connect with me](https://linkedin.com/in/nounsunheng)
 
 ### About the Developer
 
@@ -1326,7 +1325,7 @@ Planned features for future versions:
 
 <div align="center">
 
-**Made with ❤️ by [Noun Sunheng](https://github.com/nounsunheng)**
+**Made by [Noun Sunheng](https://github.com/nounsunheng)**
 
 ⭐ Star this repository if you found it helpful!
 
