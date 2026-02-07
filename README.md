@@ -1205,32 +1205,6 @@ php artisan test
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2026 Noun Sunheng
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-```
-
----
-
 ## 👨‍💻 Author
 
 **Noun Sunheng** (KYLE)
@@ -1254,19 +1228,6 @@ Kyle-HMS was developed as a comprehensive software development project demonstra
 
 ---
 
-## 🙏 Acknowledgments
-
-Special thanks to:
-
-- **Laravel Team** - For the amazing PHP framework
-- **Livewire Team** - For reactive components
-- **Tailwind CSS Team** - For the utility-first CSS framework
-- **DaisyUI Team** - For beautiful UI components
-- **Spatie** - For the Laravel Permission package
-- **GeeksforGeeks** - For project inspiration and references
-- **My Instructors** - For guidance and support
-- **Open Source Community** - For invaluable resources and tools
-
 ### Resources & References
 
 - [Laravel Documentation](https://laravel.com/docs)
@@ -1275,17 +1236,6 @@ Special thanks to:
 - [DaisyUI Components](https://daisyui.com/components)
 - [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission)
 - [GeeksforGeeks HMS Reference](https://www.geeksforgeeks.org/websites-apps/hospital-management-system-project-in-software-development/)
-
----
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-1. **Check Documentation**: Review this README and other documentation files
-2. **Search Issues**: Look for similar issues in GitHub Issues
-3. **Create Issue**: Open a new issue with detailed description
-4. **Email**: Contact nounsunheng290503@gmail.com
 
 ---
 
@@ -1307,19 +1257,6 @@ Planned features for future versions:
 - [ ] Prescription management system
 - [ ] Laboratory test integration
 - [ ] Pharmacy inventory management
-
----
-
-## 📊 Project Statistics
-
-- **Total Lines of Code**: ~15,000+
-- **Development Time**: 12 weeks
-- **Database Tables**: 12+
-- **Controllers**: 20+
-- **Models**: 8
-- **Blade Views**: 50+
-- **Migrations**: 15+
-- **Tests**: 30+
 
 ---
 
