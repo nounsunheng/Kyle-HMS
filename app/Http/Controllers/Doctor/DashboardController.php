@@ -163,23 +163,28 @@ class DashboardController extends Controller
         })->count();
     }
 
+    /**
+     * Get appointment trends for charts (last 6 months)
+     * FIXED: Now properly aggregates data by joining with schedules table
+     */
     private function getAppointmentTrends($doctor)
     {
         $sixMonthsAgo = Carbon::now()->subMonths(6)->startOfMonth();
 
-        $trends = Appointment::whereHas('schedule', function ($query) use ($doctor, $sixMonthsAgo) {
-            $query->where('doctor_id', $doctor->id)
-                  ->where('schedule_date', '>=', $sixMonthsAgo);
-        })
-        ->select(
-            DB::raw('DATE_FORMAT(appointments.created_at, "%Y-%m") as month'),
-            DB::raw('COUNT(*) as count'),
-            'appointments.status'
-        )
-        ->groupBy('month', 'appointments.status')
-        ->orderBy('month')
-        ->get();
+        // Get appointments with schedule dates for proper monthly grouping
+        $trends = Appointment::join('schedules', 'appointments.schedule_id', '=', 'schedules.id')
+            ->where('schedules.doctor_id', $doctor->id)
+            ->where('schedules.schedule_date', '>=', $sixMonthsAgo)
+            ->select(
+                DB::raw('DATE_FORMAT(schedules.schedule_date, "%Y-%m") as month'),
+                DB::raw('COUNT(*) as count'),
+                'appointments.status'
+            )
+            ->groupBy('month', 'appointments.status')
+            ->orderBy('month')
+            ->get();
 
+        // Initialize arrays
         $months = [];
         $completed = [];
         $cancelled = [];
@@ -187,18 +192,39 @@ class DashboardController extends Controller
 
         // Always generate 6 months of data
         for ($i = 5; $i >= 0; $i--) {
-            $month = Carbon::now()->subMonths($i)->format('Y-m');
-            $monthName = Carbon::now()->subMonths($i)->format('M Y');
+            $date = Carbon::now()->subMonths($i);
+            $month = $date->format('Y-m');
+            $monthName = $date->format('M Y');
+
             $months[] = $monthName;
 
-            $completedCount = $trends->where('month', $month)->where('status', 'completed')->sum('count');
-            $cancelledCount = $trends->where('month', $month)->where('status', 'cancelled')->sum('count');
-            $pendingCount = $trends->where('month', $month)->whereIn('status', ['pending', 'confirmed'])->sum('count');
+            // Get counts for each status for this month
+            $completedCount = $trends->where('month', $month)
+                                    ->where('status', 'completed')
+                                    ->sum('count');
+
+            $cancelledCount = $trends->where('month', $month)
+                                     ->where('status', 'cancelled')
+                                     ->sum('count');
+
+            $pendingCount = $trends->where('month', $month)
+                                   ->whereIn('status', ['pending', 'confirmed'])
+                                   ->sum('count');
 
             $completed[] = (int) $completedCount;
             $cancelled[] = (int) $cancelledCount;
             $pending[] = (int) $pendingCount;
         }
+
+        // Log for debugging
+        \Log::info('Appointment Trends Generated', [
+            'doctor_id' => $doctor->id,
+            'months' => $months,
+            'completed' => $completed,
+            'cancelled' => $cancelled,
+            'pending' => $pending,
+            'has_data' => array_sum($completed) + array_sum($cancelled) + array_sum($pending) > 0
+        ]);
 
         // Always return data structure (even if all zeros)
         return [

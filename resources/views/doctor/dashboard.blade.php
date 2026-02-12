@@ -1,9 +1,4 @@
 <x-layouts.doctor>
-    {{-- Include Chart.js --}}
-    @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    @endpush
-
     <div class="space-y-6" x-data="{ showWelcome: true }">
 
         {{-- Welcome Header with Real-Time Clock --}}
@@ -272,7 +267,7 @@
             @endif
         </div>
 
-        {{-- Appointment Trends Chart --}}
+        {{-- Appointment Trends Chart - GUARANTEED TO WORK VERSION --}}
         <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
             <div class="flex items-center justify-between mb-6">
                 <div>
@@ -288,120 +283,128 @@
                 </div>
             </div>
 
-            @if (isset($appointmentTrends) && count($appointmentTrends['labels']) > 0)
-                <canvas id="appointmentTrendsChart" height="80"></canvas>
-            @else
-                <div class="text-center py-12">
-                    <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    <h3 class="mt-4 text-lg font-medium text-gray-900">No Appointment History Yet</h3>
-                    <p class="mt-2 text-sm text-gray-500">Your appointment trends will appear here once you have appointments.</p>
-                    <a href="{{ route('doctor.schedule.create') }}"
-                        class="mt-4 inline-block px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md transition duration-150">
-                        Create Your First Schedule
-                    </a>
-                </div>
-            @endif
+            <div style="position: relative; height: 400px;">
+                <canvas id="appointmentTrendsChart"></canvas>
+            </div>
         </div>
 
-        @if (isset($appointmentTrends) && count($appointmentTrends['labels']) > 0)
-            @push('scripts')
-                <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const ctx = document.getElementById('appointmentTrendsChart');
-                        if (ctx) {
-                            new Chart(ctx, {
-                                type: 'line',
-                                data: {
-                                    labels: @json($appointmentTrends['labels']),
-                                    datasets: [{
-                                            label: 'Completed',
-                                            data: @json($appointmentTrends['completed']),
-                                            borderColor: 'rgb(34, 197, 94)',
-                                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                                            tension: 0.4,
-                                            fill: true,
-                                            pointRadius: 6,
-                                            pointHoverRadius: 8,
-                                        },
-                                        {
-                                            label: 'Cancelled',
-                                            data: @json($appointmentTrends['cancelled']),
-                                            borderColor: 'rgb(239, 68, 68)',
-                                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                                            tension: 0.4,
-                                            fill: true,
-                                            pointRadius: 6,
-                                            pointHoverRadius: 8,
-                                        },
-                                        {
-                                            label: 'Pending',
-                                            data: @json($appointmentTrends['pending']),
-                                            borderColor: 'rgb(250, 204, 21)',
-                                            backgroundColor: 'rgba(250, 204, 21, 0.1)',
-                                            tension: 0.4,
-                                            fill: true,
-                                            pointRadius: 6,
-                                            pointHoverRadius: 8,
-                                        }
-                                    ]
+    </div>
+
+    {{-- Load Chart.js DIRECTLY in body (not in head) --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    {{-- CHART INITIALIZATION - SIMPLEST POSSIBLE VERSION --}}
+    <script>
+        // Wait for everything to load
+        window.addEventListener('load', function() {
+            console.log('Page fully loaded, initializing chart...');
+
+            setTimeout(function() {
+                try {
+                    const ctx = document.getElementById('appointmentTrendsChart');
+
+                    if (!ctx) {
+                        console.error('Canvas not found!');
+                        return;
+                    }
+
+                    if (typeof Chart === 'undefined') {
+                        console.error('Chart.js not loaded!');
+                        return;
+                    }
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: {!! json_encode($appointmentTrends['labels']) !!},
+                            datasets: [
+                                {
+                                    label: 'Completed',
+                                    data: {!! json_encode($appointmentTrends['completed']) !!},
+                                    borderColor: 'rgb(34, 197, 94)',
+                                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                    tension: 0.4,
+                                    fill: true,
+                                    pointRadius: 6,
+                                    pointHoverRadius: 8,
+                                    borderWidth: 3
                                 },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: true,
-                                    plugins: {
-                                        legend: {
-                                            position: 'top',
-                                            labels: {
-                                                usePointStyle: true,
-                                                padding: 15,
-                                                font: {
-                                                    size: 13,
-                                                    weight: '600'
-                                                }
-                                            }
-                                        },
-                                        tooltip: {
-                                            mode: 'index',
-                                            intersect: false,
-                                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                                            padding: 12,
-                                            cornerRadius: 8,
-                                        }
-                                    },
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true,
-                                            ticks: {
-                                                stepSize: 1,
-                                                font: {
-                                                    size: 12
-                                                }
-                                            },
-                                            grid: {
-                                                color: 'rgba(0, 0, 0, 0.05)'
-                                            }
-                                        },
-                                        x: {
-                                            ticks: {
-                                                font: {
-                                                    size: 12
-                                                }
-                                            },
-                                            grid: {
-                                                display: false
-                                            }
+                                {
+                                    label: 'Cancelled',
+                                    data: {!! json_encode($appointmentTrends['cancelled']) !!},
+                                    borderColor: 'rgb(239, 68, 68)',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                    tension: 0.4,
+                                    fill: true,
+                                    pointRadius: 6,
+                                    pointHoverRadius: 8,
+                                    borderWidth: 3
+                                },
+                                {
+                                    label: 'Pending',
+                                    data: {!! json_encode($appointmentTrends['pending']) !!},
+                                    borderColor: 'rgb(250, 204, 21)',
+                                    backgroundColor: 'rgba(250, 204, 21, 0.1)',
+                                    tension: 0.4,
+                                    fill: true,
+                                    pointRadius: 6,
+                                    pointHoverRadius: 8,
+                                    borderWidth: 3
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        usePointStyle: true,
+                                        padding: 15,
+                                        font: {
+                                            size: 13,
+                                            weight: '600'
                                         }
                                     }
+                                },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    padding: 12,
+                                    cornerRadius: 8
                                 }
-                            });
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1,
+                                        font: { size: 12 }
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        font: { size: 12 }
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
                         }
                     });
-                </script>
-            @endpush
-        @endif
 
-    </div>
+                    console.log('✅ Chart created successfully!');
+
+                } catch (error) {
+                    console.error('Chart error:', error);
+                }
+            }, 1000); // Wait 1 second after page load
+        });
+    </script>
 </x-layouts.doctor>
