@@ -136,17 +136,18 @@ class DashboardController extends Controller
 
     /**
      * Get appointment trends for charts (last 6 months)
+     * FIXED: Now properly aggregates data by joining with schedules table
      */
     private function getAppointmentTrends($patient)
     {
         $sixMonthsAgo = now()->subMonths(6)->startOfMonth();
 
+        // Get all appointments with their schedule dates
         $trends = Appointment::where('patient_id', $patient->id)
-            ->whereHas('schedule', function($query) use ($sixMonthsAgo) {
-                $query->where('schedule_date', '>=', $sixMonthsAgo);
-            })
+            ->join('schedules', 'appointments.schedule_id', '=', 'schedules.id')
+            ->where('schedules.schedule_date', '>=', $sixMonthsAgo)
             ->select(
-                DB::raw('DATE_FORMAT(appointments.created_at, "%Y-%m") as month'),
+                DB::raw('DATE_FORMAT(schedules.schedule_date, "%Y-%m") as month'),
                 DB::raw('COUNT(*) as count'),
                 'appointments.status'
             )
@@ -154,21 +155,30 @@ class DashboardController extends Controller
             ->orderBy('month')
             ->get();
 
-        // Format for Chart.js
+        // Initialize arrays for all 6 months
         $months = [];
         $completed = [];
         $cancelled = [];
 
+        // Generate last 6 months labels and initialize data arrays
         for ($i = 5; $i >= 0; $i--) {
-            $month = now()->subMonths($i)->format('Y-m');
-            $monthName = now()->subMonths($i)->format('M Y');
+            $date = now()->subMonths($i);
+            $month = $date->format('Y-m');
+            $monthName = $date->format('M Y');
+
             $months[] = $monthName;
 
-            $completedCount = $trends->where('month', $month)->where('status', 'completed')->sum('count');
-            $cancelledCount = $trends->where('month', $month)->where('status', 'cancelled')->sum('count');
+            // Get counts for this month
+            $completedCount = $trends->where('month', $month)
+                                    ->where('status', 'completed')
+                                    ->sum('count');
 
-            $completed[] = $completedCount;
-            $cancelled[] = $cancelledCount;
+            $cancelledCount = $trends->where('month', $month)
+                                     ->where('status', 'cancelled')
+                                     ->sum('count');
+
+            $completed[] = (int) $completedCount;
+            $cancelled[] = (int) $cancelledCount;
         }
 
         return [
